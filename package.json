@@ -1,21 +1,40 @@
 {
-    "name": "hubble",
-    "private": true,
-    "version": "0.0.0",
-    "description": "a Sails application",
-    "dependencies": {
-        "sails": "0.9.7",
-        "grunt": "0.4.1",
-        "sails-disk": "~0.9.0",
-        "ejs": "0.8.4",
-        "optimist": "0.3.4"
-    },
-    "scripts": {
-        "start": "node app.js",
-        "debug": "node debug app.js"
-    },
-    "main": "app.js",
-    "repository": "",
-    "author": "",
-    "license": ""
+  "name": "hubble",
+  "private": true,
+  "version": "0.0.1",
+  "description": "a Sails application",
+  "dependencies": {
+    "sails": "0.9.7",
+    "grunt": "0.4.1",
+    "sails-disk": "~0.9.0",
+    "ejs": "0.8.4",
+    "optimist": "0.3.4",
+    "noble": "~0.2.7",
+    "bleno": "~0.1.1"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "debug": "node debug app.js"
+  },
+  "main": "app.js",
+  "repository": {
+    "type": "git",
+    "url": "git@bitbucket.org:smartificiel/blep-webserver.git"
+  },
+  "author": "William ANGER",
+  "license": "BSD",
+  "devDependencies": {},
+  "keywords": [
+    "ble",
+    "bluetooth",
+    "hub",
+    "noble",
+    "bleno",
+    "low",
+    "energy",
+    "le",
+    "master",
+    "central",
+    "module"
+  ]
 }
