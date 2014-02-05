@@ -1,0 +1,2 @@
+# hubble
+### a Sails application
