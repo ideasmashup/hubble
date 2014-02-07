@@ -30,5 +30,45 @@ noble.on('discover', function(peripheral) {
     console.log('\t\t' + peripheral.advertisement.txPowerLevel);
   }
 
+  peripheral.on('connect', function() {
+    console.log('connected');
+
+    var serviceUUIDs = [ 'ffe2' ];
+    peripheral.discoverServices(serviceUUIDs, function(error, services) {
+      console.log('err = ' + error);
+      console.log('services = ' + services);
+    });
+
+    console.log(1);
+
+    peripheral.discoverAllServicesAndCharacteristics(function(error, services, characts) {
+      console.log('err = ' + error);
+      console.log('services = ' + services);
+      console.log('characts = ' + characts);
+
+      for ( var i = 0; i < characts.length; i++) {
+        characts[i].read(function(error, data) {
+          console.log('read chara[' + i + '] : ' + JSON.stringify(data));
+        });
+      }
+    });
+
+    console.log(2);
+  });
+
+  // peripheral.on('serviceDiscover', function(services) {
+  // console.log('discovered services :');
+  // console.log(services);
+  // });
+
+  peripheral.connect(function(error) {
+    if (!error) {
+
+    } else {
+
+    }
+    console.log('error connect = ' + error);
+  });
+
   console.log();
 });
