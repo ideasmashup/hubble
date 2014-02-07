@@ -10,7 +10,8 @@
     "ejs": "0.8.4",
     "optimist": "0.3.4",
     "noble": "~0.2.7",
-    "bleno": "~0.1.1"
+    "bleno": "~0.1.1",
+    "async": "~0.2.10"
   },
   "scripts": {
     "start": "node app.js",
