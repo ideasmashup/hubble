@@ -1,74 +1,131 @@
+var async = require('async');
 var noble = require('noble');
 
 noble.on('stateChange', function(state) {
-  console.log('state changed to : ' + state);
   if (state === 'poweredOn') {
-    console.log('scanning started...');
     noble.startScanning();
   } else {
-    console.log('scanning stopped...');
     noble.stopScanning();
   }
 });
 
 noble.on('discover', function(peripheral) {
-  console.log('peripheral discovered (' + peripheral.uuid + '):');
-  console.log('\thello my local name is:');
-  console.log('\t\t' + peripheral.advertisement.localName);
-  console.log('\tcan I interest you in any of the following advertised services:');
-  console.log('\t\t' + JSON.stringify(peripheral.advertisement.serviceUuids));
-  if (peripheral.advertisement.serviceData) {
-    console.log('\there is my service data:');
-    console.log('\t\t' + JSON.stringify(peripheral.advertisement.serviceData.toString('hex')));
+  console.log('peripheral with UUID ' + peripheral.uuid + ' found');
+
+  console.log('stopping scanning now');
+  noble.stopScanning();
+
+  var advertisement = peripheral.advertisement;
+
+  var localName = advertisement.localName;
+  var txPowerLevel = advertisement.txPowerLevel;
+  var manufacturerData = advertisement.manufacturerData;
+  var serviceData = advertisement.serviceData;
+  var serviceUuids = advertisement.serviceUuids;
+
+  if (localName) {
+    console.log('  Local Name        = ' + localName);
   }
-  if (peripheral.advertisement.manufacturerData) {
-    console.log('\there is my manufacturer data:');
-    console.log('\t\t' + JSON.stringify(peripheral.advertisement.manufacturerData.toString('hex')));
-  }
-  if (peripheral.advertisement.txPowerLevel !== undefined) {
-    console.log('\tmy TX power level is:');
-    console.log('\t\t' + peripheral.advertisement.txPowerLevel);
+
+  if (txPowerLevel) {
+    console.log('  TX Power Level    = ' + txPowerLevel);
   }
 
-  peripheral.on('connect', function() {
-    console.log('connected');
+  if (manufacturerData) {
+    console.log('  Manufacturer Data = ' + manufacturerData.toString('hex'));
+  }
 
-    var serviceUUIDs = [ 'ffe2' ];
-    peripheral.discoverServices(serviceUUIDs, function(error, services) {
-      console.log('err = ' + error);
-      console.log('services = ' + services);
-    });
+  if (serviceData) {
+    console.log('  Service Data      = ' + serviceData);
+  }
 
-    console.log(1);
-
-    peripheral.discoverAllServicesAndCharacteristics(function(error, services, characts) {
-      console.log('err = ' + error);
-      console.log('services = ' + services);
-      console.log('characts = ' + characts);
-
-      for ( var i = 0; i < characts.length; i++) {
-        characts[i].read(function(error, data) {
-          console.log('read chara[' + i + '] : ' + JSON.stringify(data));
-        });
-      }
-    });
-
-    console.log(2);
-  });
-
-  // peripheral.on('serviceDiscover', function(services) {
-  // console.log('discovered services :');
-  // console.log(services);
-  // });
-
-  peripheral.connect(function(error) {
-    if (!error) {
-
-    } else {
-
-    }
-    console.log('error connect = ' + error);
-  });
+  if (localName) {
+    console.log('  Service UUIDs     = ' + serviceUuids);
+  }
 
   console.log();
+
+  explore(peripheral);
 });
+
+function explore(peripheral) {
+  console.log('services and characteristics:');
+
+  peripheral.on('disconnect', function() {
+    process.exit(0);
+  });
+
+  peripheral.connect(function(error) {
+    peripheral.discoverServices([], function(error, services) {
+      var serviceIndex = 0;
+
+      async.whilst(function() {
+        return (serviceIndex < services.length);
+      }, function(callback) {
+        var service = services[serviceIndex];
+        var serviceInfo = service.uuid;
+
+        if (service.name) {
+          serviceInfo += ' (' + service.name + ')';
+        }
+        console.log(serviceInfo);
+
+        service.discoverCharacteristics([], function(error, characteristics) {
+          var characteristicIndex = 0;
+
+          async.whilst(function() {
+            return (characteristicIndex < characteristics.length);
+          }, function(callback) {
+            var characteristic = characteristics[characteristicIndex];
+            var characteristicInfo = '  ' + characteristic.uuid;
+
+            if (characteristic.name) {
+              characteristicInfo += ' (' + characteristic.name + ')';
+            }
+
+            async.series([ function(callback) {
+              characteristic.discoverDescriptors(function(error, descriptors) {
+                async.detect(descriptors, function(descriptor, callback) {
+                  return callback(descriptor.uuid === '2901');
+                }, function(userDescriptionDescriptor) {
+                  if (userDescriptionDescriptor) {
+                    userDescriptionDescriptor.readValue(function(error, data) {
+                      characteristicInfo += ' (' + data.toString() + ')';
+                      callback();
+                    });
+                  } else {
+                    callback();
+                  }
+                });
+              });
+            }, function(callback) {
+              characteristicInfo += '\n    properties  ' + characteristic.properties.join(', ');
+
+              if (characteristic.properties.indexOf('read') !== -1) {
+                characteristic.read(function(error, data) {
+                  if (data) {
+                    var string = data.toString('ascii');
+
+                    characteristicInfo += '\n    value       ' + data.toString('hex') + ' | \'' + string + '\'';
+                  }
+                  callback();
+                });
+              } else {
+                callback();
+              }
+            }, function() {
+              console.log(characteristicInfo);
+              characteristicIndex++;
+              callback();
+            } ]);
+          }, function(error) {
+            serviceIndex++;
+            callback();
+          });
+        });
+      }, function(err) {
+        peripheral.disconnect();
+      });
+    });
+  });
+}
