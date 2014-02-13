@@ -1,6 +1,20 @@
 var async = require('async');
 var noble = require('noble');
 
+var DEVICE_NAME = "SensorTag";
+
+/* Humidity Service */
+var UUID_HUMIDITY_SERVICE = "f000aa20-04514000b000000000000000";
+var UUID_HUMIDITY_DATA_CHAR = "f000aa2104514000b000000000000000";
+var UUID_HUMIDITY_CONFIG_CHAR = "f000aa2204514000b000000000000000";
+/* Barometric Pressure Service */
+var UUID_PRESSURE_SERVICE = "f000aa4004514000b000000000000000";
+var UUID_PRESSURE_DATA_CHAR = "f000aa4104514000b000000000000000";
+var UUID_PRESSURE_CONFIG_CHAR = "f000aa4204514000b000000000000000";
+var UUID_PRESSURE_CAL_CHAR = "f000aa43-04514000b000000000000000";
+/* Client Configuration Descriptor */
+var UUID_CONFIG_DESCRIPTOR = "0000290200001000800000805f9b34fb";
+
 noble.on('stateChange', function(state) {
   if (state === 'poweredOn') {
     noble.startScanning();
@@ -45,7 +59,12 @@ noble.on('discover', function(peripheral) {
 
   console.log();
 
-  explore(peripheral);
+  if (localName == "Ti BLE Sensor Tag") {
+    console.log("found SensorTag, trying to fetch temp value...");
+    explore(peripheral);
+  } else {
+    console.log("SensorTag not found");
+  }
 });
 
 function explore(peripheral) {
