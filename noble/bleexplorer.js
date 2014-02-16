@@ -49,7 +49,7 @@ var _ = require('underscore');
  *              values
  */
 function l(value, length, blank_value) {
-  if (value == undefined || value == "") {
+  if (value === undefined || value === "") {
     value = blank_value ? blank_value : "";
   }
 
