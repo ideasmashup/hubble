@@ -145,7 +145,10 @@ function BleExplorer() {
 
 
       rl.question("\nType # of the device to explore and press Enter:", function(id) {
-        if (id > 0 && id < self.devices.length) {
+        rl.close();
+
+        if (id >= 0 && id < self.devices.length) {
+          console.log("Selected "+ id +" ("+ self.devices[id].uuid +")");
         }
         else {
           if (self.devices.length > 1) {
@@ -157,8 +160,6 @@ function BleExplorer() {
             self.doSelectDevice();
           }
         }
-
-        rl.close();
       });
     }
     else {
