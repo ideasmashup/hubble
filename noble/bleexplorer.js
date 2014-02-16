@@ -91,6 +91,7 @@ function BleExplorer() {
 
   //variables
   this.can_scan = false;
+  this.devices = [];
 
   // constructor
   this.main = function() {
@@ -135,8 +136,8 @@ function BleExplorer() {
   this.onScanStart = function() {
     console.log("Scanning for BLE devices...\n".italic);
 
-    //             15                18                   8          8
-    console.log("| UUID            | Local Name         | Tx Power | Services".bold);
+    //             2    15                18                   8          8
+    console.log("| #  | UUID            | Local Name         | Tx Power | Services".bold);
   };
 
   this.onScanStop = function() {
@@ -149,7 +150,8 @@ function BleExplorer() {
     if (peripheral.advertisement) {
       var adv = peripheral.advertisement;
       console.log((
-          "| " + l(peripheral.uuid, 15)
+          "| " + l(self.devices.length, 2)
+          + " | " + l(peripheral.uuid, 15)
           + " | " + l(adv.localName, 18)
           + " | " + l(adv.TxPowerLevel, 8, '---')
           + " | " + adv.serviceUuids.length
@@ -157,12 +159,16 @@ function BleExplorer() {
     }
     else {
       console.log((
-          "| " + l(dev.uuid, 15)
+          "| " + l(self.devices.length, 2)
+          + " | " + l(dev.uuid, 15)
           + " | " + l("-none-", 18)
           + " | " + l("---", 8)
           + " | " + l("---", 8)
           ).yellow);
     }
+
+    // add device to list of found devices
+    self.devices.push(peripheral);
   };
 
 
