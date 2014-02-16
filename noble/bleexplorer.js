@@ -26,11 +26,10 @@
  * <li>list device characteristics</li>
  * <li>auto config-read characteristics fro "sensor-like" devices</li>
  * </ul>
- * 
+ *
  * @author William ANGER <wanger+blexplore at smartificiel.com>
  */
 
-var util = require('util');
 var noble = require('noble');
 var bleno = require('bleno');
 var async = require('async');
