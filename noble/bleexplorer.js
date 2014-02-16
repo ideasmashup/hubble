@@ -87,65 +87,92 @@ function num(value) {
 // Main program
 
 function BleExplorer() {
-  // initialize bindings to noble events
-  noble.on('scanStart', this.onScanStart);
-  noble.on('stateChange', this.onStateChange);
-}
+  var self = this;
 
-util.inherits(BleExplorer, {
-  // variables
-  can_scan : false,
+  //variables
+  this.can_scan = false;
+
+  // constructor
+  this.main = function() {
+  };
 
   // methods
-  doScan : function(duration) {
-    if (this.can_scan) {
-      noble.removeListener('discover', Explorer.onDiscover);
-      noble.on('discover', Explorer.onDiscover);
+  this.doScan = function(duration) {
+    if (self.can_scan) {
+      noble.removeListener('discover', self.onScanDiscover);
+      noble.on('discover', self.onScanDiscover);
 
       noble.startScanning();
+
+      // force scan stop after duration
+      if (duration != undefined) {
+        setTimeout(function() {
+          noble.stopScanning();
+        }, duration);
+      }
     }
     else {
       console.log("Cannot scan (hardware not ready)!".red);
     }
-  },
+  };
+
+  };
 
   // event handlers
-  onStateChange : function(state) {
-    this.can_scan = (state === 'poweredOn');
-  },
+  this.onStateChange = function(state) {
+    if (state === "poweredOn") {
+      console.log("Bluetooth ready...");
 
-  onScanStart : function(duration) {
+      self.can_scan = true;
+      self.doScan(5000);
+    }
+    else {
+      console.log("Bluetooth not ready!".red);
+      self.can_scan = false;
+    }
+  };
+
+  this.onScanStart = function() {
     console.log("Scanning for BLE devices...\n".italic);
 
     //             15                18                   8          8
     console.log("| UUID            | Local Name         | Tx Power | Services".bold);
+  };
 
-    // force scan stop after duration
-    if (duration != undefined) {
-      setTimeout(function() {
-        noble.stopScanning();
-      }, duration);
-    }
-  },
-
-  onScanStop : function() {
+  this.onScanStop = function() {
     console.log("Scanning for BLE devices stopped.".orange);
-  },
+  };
 
-  onScanDiscover : function(peripheral) {
+  this.onScanDiscover = function(peripheral) {
     //console.log(peripheral);
 
     if (peripheral.advertisement) {
       var adv = peripheral.advertisement;
-      console.log(("| " + l(peripheral.uuid, 15) + " | " + l(adv.localName, 18) + " | " + l(adv.TxPowerLevel, 8, '---')
-          + " | " + adv.serviceUuids.length).green);
+      console.log((
+          "| " + l(peripheral.uuid, 15)
+          + " | " + l(adv.localName, 18)
+          + " | " + l(adv.TxPowerLevel, 8, '---')
+          + " | " + adv.serviceUuids.length
+          ).green);
     }
     else {
-      console
-          .log(("| " + l(dev.uuid, 15) + " | " + l("-none-", 18) + " | " + l("---", 8) + " | " + l("---", 8)).yellow);
+      console.log((
+          "| " + l(dev.uuid, 15)
+          + " | " + l("-none-", 18)
+          + " | " + l("---", 8)
+          + " | " + l("---", 8)
+          ).yellow);
     }
-  }
-});
+  };
+
+
+  // initialize bindings to noble events
+  noble.on('scanStart', this.onScanStart);
+  noble.on('stateChange', this.onStateChange);
+
+  // construct and run this instance
+  this.main();
+}
 
 // Run main program
 var explorer = new BleExplorer();
