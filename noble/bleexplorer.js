@@ -102,7 +102,7 @@ function BleExplorer() {
     console.log("   \     `.  /  ..   ".green +"-----------------------".cyan);
     console.log("    \      `.   ' .  ".green +"     BLE Explorer v0.1 ".cyan);
     console.log("     `,       `.   \\".green +"   --------------------".cyan);
-    console.log("    ,|,`.        `-.\\".green +"     by Smartificiel".green);
+    console.log("    ,|,`.        `-.\\".green +"      for Node + Noble".green);
     console.log("   '.||  ``-...__..-`".green);
     console.log("    |  |".green);
     console.log("    |__|".green);
