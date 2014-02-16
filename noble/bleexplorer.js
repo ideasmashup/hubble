@@ -95,6 +95,23 @@ function BleExplorer() {
 
   // constructor
   this.main = function() {
+    console.log("    ,-.".green);
+    console.log("   / \\  `.  __..-,O".green);
+    console.log("  :   \\ --''_..-'.'".green);
+    console.log("  |    . .-' `. '.".green);
+    console.log("  :     .     .`.'".green);
+    console.log("   \     `.  /  ..   ".green +"-----------------------".cyan);
+    console.log("    \      `.   ' .  ".green +"     BLE Explorer v0.1 ".cyan);
+    console.log("     `,       `.   \\".green +"   --------------------".cyan);
+    console.log("    ,|,`.        `-.\\".green +"     by Smartificiel".green);
+    console.log("   '.||  ``-...__..-`".green);
+    console.log("    |  |".green);
+    console.log("    |__|".green);
+    console.log("    /||\\ ".green);
+    console.log("   //||\\\\".green);
+    console.log("  // || \\\\".green);
+    console.log("_//__||__\\\\__".green);
+    console.log("'--------------'".green);
   };
 
   // methods
