@@ -263,8 +263,8 @@ function BleExplorer() {
   this.onScanStart = function() {
     console.log("Scanning for BLE devices...\n".italic);
 
-    //             2    15                18                   8          8
-    console.log("| #  | UUID            | Local Name         | Tx Power | Services".bold);
+    //             2    15                18                   8          8          8
+    console.log("| #  | UUID            | Local Name         | Tx Power | RSSI     | Services".bold);
   };
 
   this.onScanStop = function() {
@@ -281,7 +281,8 @@ function BleExplorer() {
           + " | " + l(peripheral.uuid, 15)
           + " | " + l(adv.localName, 18)
           + " | " + l(adv.TxPowerLevel, 8, '---')
-          + " | " + adv.serviceUuids.length
+          + " | " + l(peripheral.rssi, 8, '---')
+          + " | " + l(adv.serviceUuids.length, 8)
           ).green);
     }
     else {
