@@ -126,6 +126,7 @@ function BleExplorer() {
       if (duration != undefined) {
         setTimeout(function() {
           noble.stopScanning();
+          self.doSelectDevice();
         }, duration);
       }
     }
@@ -133,6 +134,38 @@ function BleExplorer() {
       console.log("Cannot scan (hardware not ready)!".red);
     }
   };
+
+
+  this.doSelectDevice = function() {
+    if (self.devices.length > 0) {
+
+      var rl = readline.createInterface({
+        input : process.stdin,
+        output : process.stdout
+      });
+
+
+      rl.question("\nType # of the device to explore and press Enter:", function(id) {
+        if (id > 0 && id < self.devices.length) {
+        }
+        else {
+          if (self.devices.length > 1) {
+            console.log(("You must enter a value between '0' and '"+ self.devices.length +"' !").red);
+            self.doSelectDevice();
+          }
+          else {
+            console.log("Only one device found, you can only select the device '0'".yellow);
+            self.doSelectDevice();
+          }
+        }
+
+        rl.close();
+      });
+    }
+    else {
+      console.log("Couln't find any BLE device!".red);
+      process.exit(-1);
+    }
 
   };
 
