@@ -428,14 +428,14 @@ function BleExplorer() {
         else {
          // finished listing this service's characteristics (no error happened)
           setTimeout(function() {
-            self.doSelectService(device);
+            self.doSelectCharacteristic(device, service);
           }, 1000);
         }
       });
     });
   };
 
-  this.doSelectCharacteristic = function(service) {
+  this.doSelectCharacteristic = function(device, service) {
     if (service.characteristics.length > 0) {
 
       var query_pattern = /^(\d+) (READ|WRITE)( ?\"(.*)\")?$/;
@@ -473,19 +473,35 @@ function BleExplorer() {
           console.log(" - value".bold + "  optionnal value for 'write' requests\n");
 
           setTimeout(function(){
-            self.doExploreDevice(service.characteristics[query]);
+            self.doSelectCharacteristic(device, service);
           }, 2000);
         }
         else if (query_matches != null) {
           // query seems correct, we can now attempt to parse it
-          var index = query_matches[0];
+          var index = parseInt(query_matches[0]);
           var action = query_matches[1];
           var value = query_matches[3];
 
           if (index >= 0 && index < service.characteristics.length) {
             // correct characteristic index
             if (action.toUpperCase() == 'READ') {
+              service.characteristics[index].read(function(error, data){
+                if (error) {
+                  console.log("Couldn't read value! Error: "+ error);
 
+                  setTimeout(function(){
+                    self.doSelectCharacteristic(device, service);
+                  }, 2000);
+                }
+                else {
+                  // read value from buffer
+                  console.log("Read value : "+ data.toString('hex'));
+
+                  setTimeout(function(){
+                    self.doSelectCharacteristic(device, service);
+                  }, 2000);
+                }
+              });
             }
             else if (action.toUpperCase() == 'WRITE') {
               if (value) {
@@ -495,7 +511,7 @@ function BleExplorer() {
                 console.log("You must provide a value when using the 'WRITE' action!".red);
 
                 setTimeout(function(){
-                  self.doSelectCharacteristic();
+                  self.doSelectCharacteristic(device, service);
                 }, 2000);
               }
             }
@@ -503,17 +519,17 @@ function BleExplorer() {
           else {
             // incorrect characteristic index
             if (service.characteristics.length > 1) {
-              console.log(("You must enter an index between '0' and '"+ service.characteristics.length +"'!").red);
+              console.log(("You must enter an index between '0' and '"+ service.characteristics.length +"'! Provided index "+ index +" is incorrect!").red);
 
               setTimeout(function(){
-                self.doSelectCharacteristic();
+                self.doSelectCharacteristic(device, service);
               }, 2000);
             }
             else {
               console.log("Only one characteristic found, you can only use the index '0'".yellow);
 
               setTimeout(function(){
-                self.doSelectCharacteristic();
+                self.doSelectCharacteristic(device, service);
               }, 2000);
             }
           }
@@ -522,7 +538,7 @@ function BleExplorer() {
           console.log("Your query is invalid, please check the allowed format by typing 'HELP' then Enter.".red);
 
           setTimeout(function(){
-            self.doSelectCharacteristic();
+            self.doSelectCharacteristic(device, service);
           }, 2000);
         }
       });
