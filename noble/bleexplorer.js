@@ -332,7 +332,7 @@ function BleExplorer() {
       //             2    32                                 50                                                   64
       console.log("| #  | Characteristic Handle (UUID)     | GATT Name / Display Name                           | Type                                                            ".bold);
       console.log("     | Properties                       | Value (hexadecimal)                                | User Description / Value (ascii)                                ");
-      console.log("                                                                                             | Descriptors ");
+      console.log("     | Descriptors (if any)".grey.bold);
 
       async.whilst(function() {
         return (characteristicIndex < characteristics.length);
@@ -404,15 +404,12 @@ function BleExplorer() {
                 ).green);
 
             // descriptors
-            if (characteristic.descriptors) {
+            if (characteristic.descriptors && characteristic.descriptors.length > 0) {
               var list = [];
               _.each(characteristic.descriptors, function(element, index){
                 list.push(element);
               });
-              console.log((
-                  "                                                                                             | "
-                  + list.join(", ")).green
-                  );
+              console.log(("     | " + list.join(", ")).grey.bold);
             }
 
           }
@@ -435,15 +432,12 @@ function BleExplorer() {
                 ).cyan);
 
             // descriptors
-            if (characteristic.descriptors) {
+            if (characteristic.descriptors && characteristic.descriptors.length > 0) {
               var list = [];
               _.each(characteristic.descriptors, function(element, index){
                 list.push(element.name);
               });
-              console.log((
-                  "                                                                                             | "
-                  + list.join(", ")).cyan
-                  );
+              console.log(("     | " + list.join(", ")).grey);
             }
           }
           callback();
@@ -514,6 +508,7 @@ function BleExplorer() {
             // correct characteristic index
             if (action.toUpperCase() == 'READ') {
               service.characteristics[index].read(function(error, data){
+                console.log("Done reading!");
                 if (error) {
                   console.log("Couldn't read value! Error: "+ error);
 
