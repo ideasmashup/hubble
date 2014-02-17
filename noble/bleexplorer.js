@@ -116,6 +116,10 @@ function BleExplorer() {
   // methods
   this.doScan = function(duration) {
     if (self.can_scan) {
+      // clear devices array
+      self.devices = [];
+
+      // clear listeners
       noble.removeListener('discover', self.onScanDiscover);
       noble.on('discover', self.onScanDiscover);
 
@@ -139,6 +143,14 @@ function BleExplorer() {
       device.discoverServices([], function(error, services) {
         var serviceIndex = 0;
 
+        // clear device services (create new array into device object)
+        device.services = [];
+
+        console.log("\nConnected to BLE peripheral, exploring services...\n".italic);
+
+        //             2    32                                 32                                 18
+        console.log("| #  | Service Handle (UUID)            | GATT Name                        | Properties  ".bold);
+
         async.whilst(function() {
           return (serviceIndex < services.length);
         }, function(callback) {
@@ -148,50 +160,42 @@ function BleExplorer() {
           if (service.name) {
             serviceInfo += ' (' + service.name + ')';
           }
-          console.log(serviceInfo);
+          //console.log(serviceInfo);
 
-          service.discoverCharacteristics([], function(error, characteristics) {
-            var characteristicIndex = 0;
+          // append service into device array
+          device.services.push(service);
+          service.index = device.services.length - 1;
+          serviceIndex++;
 
-            async.whilst(function() {
-              return (characteristicIndex < characteristics.length);
-            }, function(callback) {
-              var characteristic = characteristics[characteristicIndex];
-              var characteristicInfo = '  ' + characteristic.uuid;
+          if (service.name) {
+            // standard Bluetooth 4.0 Approved service UUID
+            console.log((
+                "| " + l(device.services.length, 2)
+                + " | " + l(service.uuid, 32)
+                + " | " + l(service.name, 32, '---')
+                + " | " + l('---', 18)
+                ).green);
+          }
+          else {
+            // non-standard service UUID
+            console.log((
+                "| " + l(device.services.length, 2)
+                + " | " + l(service.uuid, 32)
+                + " | " + l('Unknown Service', 32)
+                + " | " + l('---', 18)
+                ).yellow);
+          }
 
-              if (characteristic.name) {
-                characteristicInfo += ' (' + characteristic.name + ')';
-              }
+          // continue to next async item
+          callback();
 
-              async.series([ function(callback) {
-                characteristic.discoverDescriptors(function(error, descriptors) {
-                  async.detect(descriptors, function(descriptor, callback) {
-                    return callback(descriptor.uuid === '2901');
-                  }, function(userDescriptionDescriptor) {
-                    if (userDescriptionDescriptor) {
-                      userDescriptionDescriptor.readValue(function(error, data) {
-                        characteristicInfo += ' (' + data.toString() + ')';
-                        callback();
-                      });
-                    }
-                    else {
-                      callback();
-                    }
-                  });
-                });
-              }, function(callback) {
-                characteristicInfo += '\n    properties  ' + characteristic.properties.join(', ');
-                if (characteristic.properties.indexOf('read') !== -1) {
-                  characteristic.read(function(error, data) {
-                    if (data) {
-                      var string = data.toString('ascii');
+        }, function(err) {
+          device.disconnect();
+        });
+      });
+    });
+  };
 
-                      characteristicInfo += '\n    value       ' + data.toString('hex') + ' | \'' + string + '\'';
-                    }
-                    callback();
-                  });
-                }
-                else {
                   callback();
                 }
               }, function() {
