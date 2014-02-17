@@ -169,16 +169,7 @@ function BleExplorer() {
           console.log("| #  | Service Handle (UUID)            | GATT Name                        | Type                                                           ".bold);
 
           async.whilst(function() {
-            if (serviceIndex < services.length) {
-              return true;
-            }
-            else {
-              // done exploring services
-              setTimeout(function(){
-                self.doSelectService(device);
-              }, 1000);
-              return false;
-            }
+            return (serviceIndex < services.length);
           }, function(callback) {
             var service = services[serviceIndex];
 
@@ -213,6 +204,12 @@ function BleExplorer() {
             if (err) {
               // disconnect if error
               self.doDisconnectDevice(device);
+            }
+            else {
+              // done exploring services (no error happened)
+              setTimeout(function(){
+                self.doSelectService(device);
+              }, 1000);
             }
           });
         });
@@ -332,16 +329,7 @@ function BleExplorer() {
       console.log("     | Properties                       | Value (hexadecimal)                                | Value (ascii)                                                   ");
 
       async.whilst(function() {
-        if (characteristicIndex < characteristics.length) {
-          return true;
-        }
-        else {
-          // finished listing this service's characteristics
-          setTimeout(function() {
-            self.doExploreDevice(device);
-          }, 1000);
-          return false;
-        }
+        return (characteristicIndex < characteristics.length);
       }, function(callback) {
         var characteristic = characteristics[characteristicIndex];
         var properties = "", descriptors = "", value = "", name = "";
