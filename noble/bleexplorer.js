@@ -169,12 +169,6 @@ function BleExplorer() {
           }
         }, function(callback) {
           var service = services[serviceIndex];
-          var serviceInfo = service.uuid;
-
-          if (service.name) {
-            serviceInfo += ' (' + service.name + ')';
-          }
-          //console.log(serviceInfo);
 
           // append service into device array
           device.services.push(service);
