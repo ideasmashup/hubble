@@ -41,14 +41,14 @@ var _ = require('underscore');
 
 /**
  * Convert value to fixed-length string.
- * 
+ *
  * @value {Any} the value to convert
  * @length {Integer} length of string to return
  * @blank_value {String} optional replacement string for blank or undefined
  *              values
  */
 function l(value, length, blank_value) {
-  if (value === undefined || value === "") {
+  if (value === undefined || value === null || value === "") {
     value = blank_value ? blank_value : "";
   }
 
