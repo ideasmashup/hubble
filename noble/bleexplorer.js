@@ -222,6 +222,42 @@ function BleExplorer() {
     }
   };
 
+  this.doSelectService = function(device) {
+    if (device.services.length > 0) {
+
+      var rl = readline.createInterface({
+        input : process.stdin,
+        output : process.stdout
+      });
+
+
+      rl.question("\nType # of the service to explore and press Enter:", function(id) {
+        rl.close();
+
+        if (id.toUpperCase() == 'EXIT') {
+          self.doScan();
+        }
+        else if (_.isNumber(id*1) && id >= 0 && id < device.services.length) {
+          console.log("Selected "+ id +" ("+ device.services[id].uuid +")");
+        }
+        else {
+          if (device.services.length > 1) {
+            console.log(("You must enter a value between '0' and '"+ device.services.length +"' or EXIT!").red);
+            self.doSelectService();
+          }
+          else {
+            console.log("Only one service found, you can only select the service '0' or EXIT".yellow);
+            self.doSelectService();
+          }
+        }
+      });
+    }
+    else {
+      console.log("Couln't find any services on this BLE peripheral!".red);
+      setTimeout(self.doScan, 2000);
+    }
+  };
+
                   callback();
                 callback();
             });
