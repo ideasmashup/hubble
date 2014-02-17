@@ -83,6 +83,14 @@ function num(value) {
   return value;
 }
 
+/**
+ * Remove non-displayable chars from string
+ * @param str
+ */
+function clean(str) {
+  return str.replace(/[^A-Za-z_ 0-9+\\\/.,"#'~&$£*%:€()\[\]@°=\{\}ø?!<>²³]+/, '');
+};
+
 // Main program
 
 function BleExplorer() {
@@ -346,33 +354,33 @@ function BleExplorer() {
             console.log((
                 "| " + l(service.characteristics.length - 1, 2)
                 + " | " + l(characteristic.uuid, 32)
-                + " | " + l(characteristic.name, 32, '---')
+                + " | " + l(clean(name), 50, '---')
                 + " | " + l(characteristic.type, 64, '---')
                 ).green.bold);
 
             // details
             console.log((
                 "     | " + l(properties, 32)
-                + " | " + l(value, 32, '---')
-                + " | " + l(descriptors, 64, '---')
+                + " | " + l(clean(value), 50, '---')
+                + " | " + l(clean(descriptors), 64, '---')
                 ).green);
           }
           else {
-            // non-standard service UUID
+            // non-standard characteristic UUID
 
             // primary infos
             console.log((
                 "| " + l(service.characteristics.length - 1, 2)
-                + " | " + l(service.uuid, 32)
-                + " | " + l('Unknown', 32)
-                + " | " + l(service.type, 64, '---')
+                + " | " + l(characteristic.uuid, 32)
+                + " | " + l(clean(name), 50)
+                + " | " + l(characteristic.type, 64, '---')
                 ).yellow.bold);
 
             // details
             console.log((
                 "     | " + l(properties, 32)
-                + " | " + l(value, 32, '---')
-                + " | " + l(descriptors, 64, '---')
+                + " | " + l(clean(value), 50, '---')
+                + " | " + l(clean(descriptors), 64, '---')
                 ).yellow);
           }
           callback();
