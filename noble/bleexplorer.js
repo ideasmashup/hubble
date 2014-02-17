@@ -438,7 +438,7 @@ function BleExplorer() {
   this.doSelectCharacteristic = function(service) {
     if (service.characteristics.length > 0) {
 
-      var query_pattern = /^([0-9.,]+) (READ|WRITE)( ?\"(?*)\")?$/gi;
+      var query_pattern = /^(\d+) (READ|WRITE)( ?\"(.*)\")?$/;
       var query_matches;
 
       var rl = readline.createInterface({
