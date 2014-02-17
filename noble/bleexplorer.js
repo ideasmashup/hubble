@@ -294,6 +294,7 @@ function BleExplorer() {
       }, function(callback) {
         var characteristic = characteristics[characteristicIndex];
         var characteristicInfo = '  ' + characteristic.uuid;
+        var properties = "", descriptors = "", value = "", name = "";
 
         // append characteristic into service array
         service.characteristics.push(characteristic);
@@ -301,26 +302,7 @@ function BleExplorer() {
         characteristicIndex++;
 
         if (characteristic.name) {
-          characteristicInfo += ' (' + characteristic.name + ')';
-        }
-
-        if (characteristic.name) {
-          // standard Bluetooth 4.0 Approved service UUID
-          console.log((
-              "| " + l(service.characteristics.length - 1, 2)
-              + " | " + l(characteristic.uuid, 32)
-              + " | " + l(characteristic.name, 32, '---')
-              + " | " + l(characteristic.type, 64, '---')
-              ).green.inverse);
-        }
-        else {
-          // non-standard service UUID
-          console.log((
-              "| " + l(service.characteristics.length - 1, 2)
-              + " | " + l(service.uuid, 32)
-              + " | " + l('Unknown Service', 32)
-              + " | " + l(service.type, 64, '---')
-              ).yellow.inverse);
+          name = characteristic.name;
         }
 
         async.series([ function(callback) {
@@ -330,7 +312,7 @@ function BleExplorer() {
             }, function(userDescriptionDescriptor) {
               if (userDescriptionDescriptor) {
                 userDescriptionDescriptor.readValue(function(error, data) {
-                  //characteristicInfo += ' (' + data.toString() + ')';
+                  name = data.toString();
                   callback();
                 });
               }
@@ -342,7 +324,6 @@ function BleExplorer() {
         }, function(callback) {
           properties = characteristic.properties.join(', ');
 
-          characteristicInfo += '\n    properties  ' + characteristic.properties.join(', ');
           if (characteristic.properties.indexOf('read') !== -1) {
             characteristic.read(function(error, data) {
               if (data) {
@@ -357,10 +338,19 @@ function BleExplorer() {
             callback();
           }
         }, function() {
-          //console.log(characteristicInfo);
-          //characteristicIndex++;
+          // primary characteristic infos and details
           if (characteristic.name) {
-            // Approved characteristic
+            // standard Bluetooth 4.0 Approved service UUID
+
+            // primary infos
+            console.log((
+                "| " + l(service.characteristics.length - 1, 2)
+                + " | " + l(characteristic.uuid, 32)
+                + " | " + l(characteristic.name, 32, '---')
+                + " | " + l(characteristic.type, 64, '---')
+                ).green.bold);
+
+            // details
             console.log((
                 "     | " + l(properties, 32)
                 + " | " + l(value, 32, '---')
@@ -368,7 +358,17 @@ function BleExplorer() {
                 ).green);
           }
           else {
-            // unofficial characteristic
+            // non-standard service UUID
+
+            // primary infos
+            console.log((
+                "| " + l(service.characteristics.length - 1, 2)
+                + " | " + l(service.uuid, 32)
+                + " | " + l('Unknown', 32)
+                + " | " + l(service.type, 64, '---')
+                ).yellow.bold);
+
+            // details
             console.log((
                 "     | " + l(properties, 32)
                 + " | " + l(value, 32, '---')
