@@ -271,8 +271,8 @@ function BleExplorer() {
     service.discoverCharacteristics([], function(error, characteristics) {
       var characteristicIndex = 0;
 
-      // clear device services (create new array into device object)
-      service.characts = [];
+      // clear service characteristics (create new array into service object)
+      service.characteristics = [];
 
       console.log("\nExploring service characteristics...\n".italic);
 
@@ -293,6 +293,11 @@ function BleExplorer() {
       }, function(callback) {
         var characteristic = characteristics[characteristicIndex];
         var characteristicInfo = '  ' + characteristic.uuid;
+
+        // append characteristic into service array
+        service.characteristics.push(characteristic);
+        characteristic.index = service.characteristics.length - 1;
+        characteristicIndex++;
 
         if (characteristic.name) {
           characteristicInfo += ' (' + characteristic.name + ')';
