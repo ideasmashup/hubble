@@ -104,23 +104,23 @@ function BleExplorer() {
 
   // constructor
   this.main = function() {
-    console.log("    ,-.".green);
-    console.log("   / \\  `.  __..-,O".green);
-    console.log("  :   \\ --''_..-'.'".green);
-    console.log("  |    . .-' `. '.".green);
-    console.log("  :     .     .`.'".green);
-    console.log("   \     `.  /  ..   ".green +"-----------------------".cyan);
-    console.log("    \      `.   ' .  ".green +"     BLE Explorer v0.1 ".cyan);
-    console.log("     `,       `.   \\".green +"   --------------------".cyan);
-    console.log("    ,|,`.        `-.\\".green +"      for Node + Noble".green);
-    console.log("   '.||  ``-...__..-`".green);
-    console.log("    |  |".green);
-    console.log("    |__|".green);
-    console.log("    /||\\ ".green);
-    console.log("   //||\\\\".green);
-    console.log("  // || \\\\".green);
-    console.log("_//__||__\\\\__".green);
-    console.log("'--------------'".green);
+    console.log("\n    ,-.".green.bold);
+    console.log("   / \\  `.  __..-,O".green.bold);
+    console.log("  :   \\ --''_..-'.'".green.bold);
+    console.log("  |    . .-' `. '.".green.bold);
+    console.log("  :     .     .`.'".green.bold);
+    console.log("   \     `.  /  ..   ".green.bold +"-----------------------".cyan);
+    console.log("    \      `.   ' .  ".green.bold +"     BLE Explorer v0.1 ".cyan);
+    console.log("     `,       `.   \\".green.bold +"   --------------------".cyan);
+    console.log("    ,|,`.        `-.\\".green.bold +"      for Node + Noble".green);
+    console.log("   '.||  ``-...__..-`".green.bold);
+    console.log("    |  |".green.bold);
+    console.log("    |__|".green.bold);
+    console.log("    /||\\ ".green.bold);
+    console.log("   //||\\\\".green.bold);
+    console.log("  // || \\\\".green.bold);
+    console.log("_//__||__\\\\__".green.bold);
+    console.log("'--------------'".green.bold + " ProTip®:".green.bold + " type EXIT or BACK to navigate between screens\n".green);
   };
 
   // methods
@@ -261,7 +261,7 @@ function BleExplorer() {
     if (device != null) {
       self.current_device = null;
       device.disconnect();
-      console.log("Disconnected from BLE device...".magenta);
+      console.log("Disconnected from BLE device...\n".magenta);
     }
     else {
       console.log("Already disconnected from device");
@@ -283,11 +283,16 @@ function BleExplorer() {
         if (id.toUpperCase() == 'EXIT') {
           self.doDisconnectDevice(device);
 
-          // scan again or exit?
+          // must wait for disconnect to finish before exiting (BLE is SLOW)
+          setTimeout(function() {
+            process.exit(-1);
+          }, 5000);
+        }
+        else if (id.toUpperCase() == 'BACK') {
+          self.doDisconnectDevice(device);
 
-          // FIXME scanning never works when called immediately, for noew we will exit
-          //self.doScan();
-          process.exit(-1);
+          // must wait before scanning again (BLE disconnection is SLOW!!)
+          setTimeout(self.doScan, 5000);
         }
         else if (_.isNumber(id*1) && id >= 0 && id < device.services.length) {
           console.log("Selected "+ id +" ("+ device.services[id].uuid +")");
@@ -295,13 +300,13 @@ function BleExplorer() {
         }
         else {
           if (device.services.length > 1) {
-            console.log(("You must enter a value between '0' and '"+ device.services.length +"' or EXIT!").red);
+            console.log(("You must enter a value between '0' and '"+ device.services.length +"'!").red);
             setTimeout(function(){
               self.doSelectService(device);
             }, 1000);
           }
           else {
-            console.log("Only one service found, you can only select the service '0' or EXIT".yellow);
+            console.log("Only one service found, you can only select the service '0'".yellow);
             setTimeout(function(){
               self.doSelectService(device);
             }, 1000);
@@ -421,6 +426,7 @@ function BleExplorer() {
           console.warn(error);
         }
         else {
+         // finished listing this service's characteristics (no error happened)
           setTimeout(function() {
             self.doSelectService(device);
           }, 1000);
@@ -450,11 +456,11 @@ function BleExplorer() {
         }
         else {
           if (self.devices.length > 1) {
-            console.log(("You must enter a value between '0' and '"+ self.devices.length +"' or EXIT !").red);
+            console.log(("You must enter a value between '0' and '"+ self.devices.length +"'!").red);
             self.doSelectDevice();
           }
           else {
-            console.log("Only one device found, you can only select the device '0' or EXIT".yellow);
+            console.log("Only one device found, you can only select the device '0'".yellow);
             self.doSelectDevice();
           }
         }
