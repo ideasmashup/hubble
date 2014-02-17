@@ -256,7 +256,7 @@ function BleExplorer() {
       console.log("Bluetooth ready...");
 
       self.can_scan = true;
-      self.doScan(5000);
+      self.doScan(1000);
     }
     else {
       console.log("Bluetooth not ready!".red);
