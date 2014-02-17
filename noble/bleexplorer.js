@@ -151,70 +151,109 @@ function BleExplorer() {
   };
 
   this.doExploreDevice = function(device) {
-    device.connect(function(error) {
-      // store current device ref
-      self.current_device = device;
+    if (self.current_device == null) {
+      // not connected to a device, need to connect before being able to list services
+      device.connect(function(error) {
+        // store current device ref
+        self.current_device = device;
 
-      device.discoverServices([], function(error, services) {
-        var serviceIndex = 0;
+        device.discoverServices([], function(error, services) {
+          var serviceIndex = 0;
 
-        // clear device services (create new array into device object)
-        device.services = [];
+          // clear device services (create new array into device object)
+          device.services = [];
 
-        console.log("\nConnected to BLE peripheral, exploring services...\n".italic);
+          console.log("\nConnected to BLE peripheral, exploring services...\n".italic);
 
-        //             2    32                                 32                                 64
-        console.log("| #  | Service Handle (UUID)            | GATT Name                        | Type                                                           ".bold);
+          //             2    32                                 32                                 64
+          console.log("| #  | Service Handle (UUID)            | GATT Name                        | Type                                                           ".bold);
 
-        async.whilst(function() {
-          if (serviceIndex < services.length) {
-            return true;
-          }
-          else {
-            // done exploring services
-            setTimeout(function(){
-              self.doSelectService(device);
-            }, 2000);
-            return false;
-          }
-        }, function(callback) {
-          var service = services[serviceIndex];
+          async.whilst(function() {
+            if (serviceIndex < services.length) {
+              return true;
+            }
+            else {
+              // done exploring services
+              setTimeout(function(){
+                self.doSelectService(device);
+              }, 1000);
+              return false;
+            }
+          }, function(callback) {
+            var service = services[serviceIndex];
 
-          // append service into device array
-          device.services.push(service);
-          service.index = device.services.length - 1;
-          serviceIndex++;
+            // append service into device array
+            device.services.push(service);
+            service.index = device.services.length - 1;
+            serviceIndex++;
 
-          if (service.name) {
-            // standard Bluetooth 4.0 Approved service UUID
-            console.log((
-                "| " + l(device.services.length - 1, 2)
-                + " | " + l(service.uuid, 32)
-                + " | " + l(service.name, 32, '---')
-                + " | " + l(service.type, 64, '---')
-                ).green.bold);
-          }
-          else {
-            // non-standard service UUID
-            console.log((
-                "| " + l(device.services.length - 1, 2)
-                + " | " + l(service.uuid, 32)
-                + " | " + l('---', 32)
-                + " | " + l(service.type, 64, '---')
-                ).cyan.bold);
-          }
+            if (service.name) {
+              // standard Bluetooth 4.0 Approved service UUID
+              console.log((
+                  "| " + l(device.services.length - 1, 2)
+                  + " | " + l(service.uuid, 32)
+                  + " | " + l(service.name, 32, '---')
+                  + " | " + l(service.type, 64, '---')
+                  ).green.bold);
+            }
+            else {
+              // non-standard service UUID
+              console.log((
+                  "| " + l(device.services.length - 1, 2)
+                  + " | " + l(service.uuid, 32)
+                  + " | " + l('---', 32)
+                  + " | " + l(service.type, 64, '---')
+                  ).cyan.bold);
+            }
 
-          // continue to next async item
-          callback();
+            // continue to next async item
+            callback();
 
-        }, function(err) {
-          if (err) {
-            // disconnect if error
-            self.doDisconnectDevice(device);
-          }
+          }, function(err) {
+            if (err) {
+              // disconnect if error
+              self.doDisconnectDevice(device);
+            }
+          });
         });
       });
-    });
+    }
+    else {
+      // connected already, show list of already saved services
+
+      console.log("\nStill connected to BLE peripheral, showing listed services...\n".italic);
+
+      //    2    32                                 32                                 64
+      console.log("| #  | Service Handle (UUID)            | GATT Name                        | Type                                                           ".bold);
+
+      for (var i = 0; i < device.services.length; i++) {
+        var service = device.services[i];
+
+        if (service.name) {
+          // standard Bluetooth 4.0 Approved service UUID
+          console.log((
+              "| " + l(device.services.length - 1, 2)
+              + " | " + l(service.uuid, 32)
+              + " | " + l(service.name, 32, '---')
+              + " | " + l(service.type, 64, '---')
+              ).green.bold);
+        }
+        else {
+          // non-standard service UUID
+          console.log((
+              "| " + l(device.services.length - 1, 2)
+              + " | " + l(service.uuid, 32)
+              + " | " + l('---', 32)
+              + " | " + l(service.type, 64, '---')
+              ).cyan.bold);
+        }
+      }
+
+      // done listing services again
+      setTimeout(function(){
+        self.doSelectService(device);
+      }, 1000);
+    }
   };
 
   this.doDisconnectDevice = function(device) {
@@ -260,18 +299,22 @@ function BleExplorer() {
         else {
           if (device.services.length > 1) {
             console.log(("You must enter a value between '0' and '"+ device.services.length +"' or EXIT!").red);
-            self.doSelectService();
+            setTimeout(function(){
+              self.doSelectService(device);
+            }, 1000);
           }
           else {
             console.log("Only one service found, you can only select the service '0' or EXIT".yellow);
-            self.doSelectService();
+            setTimeout(function(){
+              self.doSelectService(device);
+            }, 1000);
           }
         }
       });
     }
     else {
       console.log("Couln't find any services on this BLE peripheral!".red);
-      setTimeout(self.doScan, 2000);
+      setTimeout(self.doScan, 1000);
     }
   };
 
@@ -391,7 +434,7 @@ function BleExplorer() {
         }
         else {
           setTimeout(function() {
-            self.doExploreDevice(device);
+            self.doSelectService(device);
           }, 1000);
         }
       });
