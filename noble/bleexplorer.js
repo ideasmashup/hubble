@@ -204,10 +204,28 @@ function BleExplorer() {
           callback();
 
         }, function(err) {
-          device.disconnect();
+          if (err) {
+            // disconnect if error
+            self.doDisconnectDevice(device);
+          }
         });
       });
     });
+  };
+
+  this.doDisconnectDevice = function(device) {
+    if (device == undefined) {
+      device = self.current_device;
+    }
+
+    if (device != null) {
+      self.current_device = null;
+      device.disconnect();
+      console.log("Disconnected from BLE device...".magenta);
+    }
+    else {
+      console.log("Already disconnected from device");
+    }
   };
 
                   callback();
