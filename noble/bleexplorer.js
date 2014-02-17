@@ -92,6 +92,8 @@ function BleExplorer() {
   this.can_scan = false;
   this.devices = [];
 
+  this.current_device = null;
+
   // constructor
   this.main = function() {
     console.log("    ,-.".green);
@@ -142,6 +144,9 @@ function BleExplorer() {
 
   this.doExploreDevice = function(device) {
     device.connect(function(error) {
+      // store current device ref
+      self.current_device = device;
+
       device.discoverServices([], function(error, services) {
         var serviceIndex = 0;
 
