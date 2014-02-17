@@ -155,8 +155,8 @@ function BleExplorer() {
 
         console.log("\nConnected to BLE peripheral, exploring services...\n".italic);
 
-        //             2    32                                 32                                 18
-        console.log("| #  | Service Handle (UUID)            | GATT Name                        | Properties  ".bold);
+        //             2    32                                 32                                 64
+        console.log("| #  | Service Handle (UUID)            | GATT Name                        | Type  ".bold);
 
         async.whilst(function() {
           if (serviceIndex < services.length) {
@@ -181,7 +181,7 @@ function BleExplorer() {
                 "| " + l(device.services.length - 1, 2)
                 + " | " + l(service.uuid, 32)
                 + " | " + l(service.name, 32, '---')
-                + " | " + l('---', 18)
+                + " | " + l(service.type, 64, '---')
                 ).green);
           }
           else {
@@ -190,7 +190,7 @@ function BleExplorer() {
                 "| " + l(device.services.length - 1, 2)
                 + " | " + l(service.uuid, 32)
                 + " | " + l('Unknown Service', 32)
-                + " | " + l('---', 18)
+                + " | " + l(service.type, 64, '---')
                 ).yellow);
           }
 
