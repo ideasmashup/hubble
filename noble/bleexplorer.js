@@ -178,7 +178,7 @@ function BleExplorer() {
           if (service.name) {
             // standard Bluetooth 4.0 Approved service UUID
             console.log((
-                "| " + l(device.services.length, 2)
+                "| " + l(device.services.length - 1, 2)
                 + " | " + l(service.uuid, 32)
                 + " | " + l(service.name, 32, '---')
                 + " | " + l('---', 18)
@@ -187,7 +187,7 @@ function BleExplorer() {
           else {
             // non-standard service UUID
             console.log((
-                "| " + l(device.services.length, 2)
+                "| " + l(device.services.length - 1, 2)
                 + " | " + l(service.uuid, 32)
                 + " | " + l('Unknown Service', 32)
                 + " | " + l('---', 18)
