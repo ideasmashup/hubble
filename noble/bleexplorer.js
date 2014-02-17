@@ -115,6 +115,10 @@ function BleExplorer() {
 
   // methods
   this.doScan = function(duration) {
+    if (duration == undefined) {
+      duration = 1000;
+    }
+
     if (self.can_scan) {
       // clear devices array
       self.devices = [];
@@ -126,12 +130,10 @@ function BleExplorer() {
       noble.startScanning();
 
       // force scan stop after duration
-      if (duration != undefined) {
-        setTimeout(function() {
-          noble.stopScanning();
-          self.doSelectDevice();
-        }, duration);
-      }
+      setTimeout(function() {
+        noble.stopScanning();
+        self.doSelectDevice();
+      }, duration);
     }
     else {
       console.log("Cannot scan (hardware not ready)!".red);
@@ -239,13 +241,14 @@ function BleExplorer() {
 
   };
 
+
   // event handlers
   this.onStateChange = function(state) {
     if (state === "poweredOn") {
       console.log("Bluetooth ready...");
 
       self.can_scan = true;
-      self.doScan(1000);
+      self.doScan();
     }
     else {
       console.log("Bluetooth not ready!".red);
