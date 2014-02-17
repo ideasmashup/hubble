@@ -469,7 +469,7 @@ function BleExplorer() {
         output : process.stdout
       });
 
-      rl.question("\nType # of the characteristic, action and value (see HELP) then press Enter:", function(query) {
+      rl.question("\nType # of the characteristic, action and value to query (see HELP) then press Enter:", function(query) {
         rl.close();
 
         // validate provided query
@@ -490,10 +490,13 @@ function BleExplorer() {
           }, 1000);
         }
         else if (query.toUpperCase() == 'HELP') {
-          console.log("\nQuery format : [index] [action]( [\"value\"])");
-          console.log("  [index]".bold + "  # number of the characteristic to query");
-          console.log("  [action]".bold + " either 'read' or 'write'");
-          console.log("  [value]".bold + "  optionnal value for 'write' requests\n");
+          console.log("\nQuery format : [index] [action]( [\"value\"])\n".bold.magenta);
+
+          console.log("  [index]".bold.magenta + "  # number of the characteristic to query".magenta);
+          console.log("  [action]".bold.magenta + " either 'read' or 'write'".magenta);
+          console.log("  [value]".bold.magenta + "  optionnal value for 'write' requests\n".magenta);
+
+          console.log("Examples : ".magenta + "2 READ".magenta.bold + ", ".magenta + "42 WRITE \"is_the_answer\"".magenta.bold);
 
           setTimeout(function(){
             self.doSelectCharacteristic(device, service);
@@ -508,10 +511,10 @@ function BleExplorer() {
           if (index >= 0 && index < service.characteristics.length) {
             // correct characteristic index
             if (action.toUpperCase() == 'READ') {
+              console.log("Reading characteristic " + service.characteristics[index].uuid + "...");
               service.characteristics[index].read(function(error, data){
-                console.log("Done reading!");
                 if (error) {
-                  console.log("Couldn't read value! Error: "+ error);
+                  console.log("Couldn't read value! Error: ".red + error.red);
 
                   setTimeout(function(){
                     self.doSelectCharacteristic(device, service);
@@ -538,6 +541,13 @@ function BleExplorer() {
                   self.doSelectCharacteristic(device, service);
                 }, 2000);
               }
+            }
+            else {
+              console.log("You must provide a valid action (either READ or WRITE)! Provided action "+ action +" is incorrect!".red);
+
+              setTimeout(function(){
+                self.doSelectCharacteristic(device, service);
+              }, 2000);
             }
           }
           else {
