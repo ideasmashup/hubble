@@ -164,7 +164,9 @@ function BleExplorer() {
           }
           else {
             // done exploring services
-            self.doSelectService(device);
+            setTimeout(function(){
+              self.doSelectService(device);
+            }, 2000);
             return false;
           }
         }, function(callback) {
