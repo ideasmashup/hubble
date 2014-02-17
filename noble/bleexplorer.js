@@ -52,8 +52,9 @@ function l(value, length, blank_value) {
     value = blank_value ? blank_value : "";
   }
 
+  // force conversion to string and sanitizing of values (to avoid ASCII breaks with non-displayable chars)
   var whitespace_padding = "                                                       ";
-  var str = value + "";
+  var str = clean(value + "");
 
   if (str.length == length) {
     return str;
@@ -88,7 +89,7 @@ function num(value) {
  * @param str
  */
 function clean(str) {
-  return str.replace(/[^A-Za-z_ 0-9+\\\/.,"#'~&$£*%:€()\[\]@°=\{\}ø?!<>²³]+/, '');
+  return str.replace(/[^A-Za-z_ 0-9+-\\\/.,"#'~&$£*%:€()\[\]@°=\{\}ø?!<>²³]+/, '');
 };
 
 // Main program
@@ -392,15 +393,15 @@ function BleExplorer() {
             console.log((
                 "| " + l(service.characteristics.length - 1, 2)
                 + " | " + l(characteristic.uuid, 32)
-                + " | " + l(clean(name), 50, '---')
+                + " | " + l(name, 50, '---')
                 + " | " + l(characteristic.type, 64, '---')
                 ).green.bold);
 
             // details
             console.log((
                 "     | " + l(properties, 32)
-                + " | " + l(clean(value), 50, '---')
-                + " | " + l(clean(ascii), 64, '---')
+                + " | " + l(value, 50, '---')
+                + " | " + l(ascii, 64, '---')
                 ).green);
 
             // descriptors
@@ -420,15 +421,15 @@ function BleExplorer() {
             console.log((
                 "| " + l(service.characteristics.length - 1, 2)
                 + " | " + l(characteristic.uuid, 32)
-                + " | " + l(clean(name), 50)
+                + " | " + l(name, 50)
                 + " | " + l(characteristic.type, 64, '---')
                 ).cyan.bold);
 
             // details
             console.log((
                 "     | " + l(properties, 32)
-                + " | " + l(clean(value), 50, '---')
-                + " | " + l(clean(ascii), 64, '---')
+                + " | " + l(value, 50, '---')
+                + " | " + l(ascii, 64, '---')
                 ).cyan);
 
             // descriptors
