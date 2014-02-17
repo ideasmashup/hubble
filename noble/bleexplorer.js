@@ -197,20 +197,9 @@ function BleExplorer() {
   };
 
                   callback();
-                }
-              }, function() {
-                console.log(characteristicInfo);
-                characteristicIndex++;
                 callback();
-              } ]);
-            }, function(error) {
-              serviceIndex++;
-              callback();
             });
           });
-        }, function(err) {
-          device.disconnect();
-        });
       });
     });
   };
