@@ -154,7 +154,14 @@ function BleExplorer() {
         console.log("| #  | Service Handle (UUID)            | GATT Name                        | Properties  ".bold);
 
         async.whilst(function() {
-          return (serviceIndex < services.length);
+          if (serviceIndex < services.length) {
+            return true;
+          }
+          else {
+            // done exploring services
+            self.doSelectService(device);
+            return false;
+          }
         }, function(callback) {
           var service = services[serviceIndex];
           var serviceInfo = service.uuid;
