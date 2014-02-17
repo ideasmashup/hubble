@@ -230,17 +230,21 @@ function BleExplorer() {
       rl.question("\nType # of the device to explore and press Enter:", function(id) {
         rl.close();
 
-        if (id >= 0 && id < self.devices.length) {
+        if (id.toUpperCase() == 'EXIT') {
+          self.doDisconnectDevice();
+          process.exit(0);
+        }
+        else if (_.isNumber(id*1) && id >= 0 && id < self.devices.length) {
           console.log("Selected "+ id +" ("+ self.devices[id].uuid +")");
           self.doExploreDevice(self.devices[id]);
         }
         else {
           if (self.devices.length > 1) {
-            console.log(("You must enter a value between '0' and '"+ self.devices.length +"' !").red);
+            console.log(("You must enter a value between '0' and '"+ self.devices.length +"' or EXIT !").red);
             self.doSelectDevice();
           }
           else {
-            console.log("Only one device found, you can only select the device '0'".yellow);
+            console.log("Only one device found, you can only select the device '0' or EXIT".yellow);
             self.doSelectDevice();
           }
         }
