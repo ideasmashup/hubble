@@ -331,13 +331,14 @@ function BleExplorer() {
 
       //             2    32                                 50                                                   64
       console.log("| #  | Characteristic Handle (UUID)     | GATT Name / Display Name                           | Type                                                            ".bold);
-      console.log("     | Properties                       | Value (hexadecimal)                                | Value (ascii)                                                   ");
+      console.log("     | Properties                       | Value (hexadecimal)                                | User Description / Value (ascii)                                ");
+      console.log("                                                                                             | Descriptors ");
 
       async.whilst(function() {
         return (characteristicIndex < characteristics.length);
       }, function(callback) {
         var characteristic = characteristics[characteristicIndex];
-        var properties = "", descriptors = "", value = "", name = "";
+        var properties = "", ascii = "", value = "", name = "";
 
         // append characteristic into service array
         service.characteristics.push(characteristic);
@@ -350,7 +351,9 @@ function BleExplorer() {
 
         async.series([ function(callback) {
           characteristic.discoverDescriptors(function(error, descriptors) {
+            characteristic.descriptors = descriptors;
             async.detect(descriptors, function(descriptor, callback) {
+              // 2901: "User Description" (org.bluetooth.descriptor.gatt.characteristic_user_description)
               return callback(descriptor.uuid === '2901');
             }, function(userDescriptionDescriptor) {
               if (userDescriptionDescriptor) {
@@ -372,7 +375,7 @@ function BleExplorer() {
               if (data) {
                 var string = data.toString('ascii');
                 value = data.toString('hex');
-                descriptors = string;
+                ascii = string;
               }
               callback();
             });
@@ -397,8 +400,21 @@ function BleExplorer() {
             console.log((
                 "     | " + l(properties, 32)
                 + " | " + l(clean(value), 50, '---')
-                + " | " + l(clean(descriptors), 64, '---')
+                + " | " + l(clean(ascii), 64, '---')
                 ).green);
+
+            // descriptors
+            if (characteristic.descriptors) {
+              var list = [];
+              _.each(characteristic.descriptors, function(element, index){
+                list.push(element);
+              });
+              console.log((
+                  "                                                                                             | "
+                  + list.join(", ")).green
+                  );
+            }
+
           }
           else {
             // non-standard characteristic UUID
@@ -415,8 +431,20 @@ function BleExplorer() {
             console.log((
                 "     | " + l(properties, 32)
                 + " | " + l(clean(value), 50, '---')
-                + " | " + l(clean(descriptors), 64, '---')
+                + " | " + l(clean(ascii), 64, '---')
                 ).cyan);
+
+            // descriptors
+            if (characteristic.descriptors) {
+              var list = [];
+              _.each(characteristic.descriptors, function(element, index){
+                list.push(element.name);
+              });
+              console.log((
+                  "                                                                                             | "
+                  + list.join(", ")).cyan
+                  );
+            }
           }
           callback();
         } ]);
