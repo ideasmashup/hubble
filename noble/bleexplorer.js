@@ -435,6 +435,53 @@ function BleExplorer() {
     });
   };
 
+  this.doSelectCharacteristic = function(service) {
+    if (service.characteristics.length > 0) {
+
+      var rl = readline.createInterface({
+        input : process.stdin,
+        output : process.stdout
+      });
+
+      rl.question("\nType \"[# of the characteristic] [action] [value]\" and press Enter:", function(id) {
+        rl.close();
+
+        if (id.toUpperCase() == 'EXIT') {
+          self.doDisconnectDevice(device);
+
+          // must wait for disconnect to finish before exiting (BLE is SLOW)
+          setTimeout(function() {
+            process.exit(-1);
+          }, 5000);
+        }
+        else if (id.toUpperCase() == 'BACK') {
+          self.doDisconnectDevice(device);
+
+          // must wait before scanning again (BLE disconnection is SLOW!!)
+          setTimeout(self.doScan, 5000);
+        }
+        else if (_.isNumber(id*1) && id >= 0 && id < self.devices.length) {
+          console.log("Selected "+ id +" ("+ service.characteristics[id].uuid +")");
+          self.doExploreDevice(service.characteristics[id]);
+        }
+        else {
+          if (service.characteristics.length > 1) {
+            console.log(("You must enter a value between '0' and '"+ service.characteristics.length +"'!").red);
+            self.doSelectDevice();
+          }
+          else {
+            console.log("Only one characteristic found, you can only select the characteristic '0'".yellow);
+            self.doSelectDevice();
+          }
+        }
+      });
+    }
+    else {
+      console.log("Couln't find any characteristic in this service!".red);
+      process.exit(-1);
+    }
+  };
+
   this.doSelectDevice = function() {
     if (self.devices.length > 0) {
 
