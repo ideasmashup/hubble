@@ -235,7 +235,13 @@ function BleExplorer() {
         rl.close();
 
         if (id.toUpperCase() == 'EXIT') {
-          self.doScan();
+          self.doDisconnectDevice(device);
+
+          // scan again or exit?
+
+          // FIXME scanning never works when called immediately, for noew we will exit
+          //self.doScan();
+          process.exit(-1);
         }
         else if (_.isNumber(id*1) && id >= 0 && id < device.services.length) {
           console.log("Selected "+ id +" ("+ device.services[id].uuid +")");
@@ -279,7 +285,6 @@ function BleExplorer() {
         rl.close();
 
         if (id.toUpperCase() == 'EXIT') {
-          self.doDisconnectDevice();
           process.exit(0);
         }
         else if (_.isNumber(id*1) && id >= 0 && id < self.devices.length) {
