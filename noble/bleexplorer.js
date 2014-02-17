@@ -438,15 +438,21 @@ function BleExplorer() {
   this.doSelectCharacteristic = function(service) {
     if (service.characteristics.length > 0) {
 
+      var query_pattern = /^([0-9.,]+) (READ|WRITE)( ?\"(?*)\")?$/gi;
+      var query_matches;
+
       var rl = readline.createInterface({
         input : process.stdin,
         output : process.stdout
       });
 
-      rl.question("\nType \"[# of the characteristic] [action] [value]\" and press Enter:", function(id) {
+      rl.question("\nType # of the characteristic, action and value (see HELP) then press Enter:", function(query) {
         rl.close();
 
-        if (id.toUpperCase() == 'EXIT') {
+        // validate provided query
+        query_matches = query.match(query_pattern);
+
+        if (query.toUpperCase() == 'EXIT') {
           self.doDisconnectDevice(device);
 
           // must wait for disconnect to finish before exiting (BLE is SLOW)
@@ -454,11 +460,11 @@ function BleExplorer() {
             process.exit(-1);
           }, 5000);
         }
-        else if (id.toUpperCase() == 'BACK') {
-          self.doDisconnectDevice(device);
-
-          // must wait before scanning again (BLE disconnection is SLOW!!)
-          setTimeout(self.doScan, 5000);
+        else if (query.toUpperCase() == 'BACK') {
+          // go back to service selection prompt
+          setTimeout(function(){
+            self.doSelectService(device);
+          }, 1000);
         }
         else if (query.toUpperCase() == 'HELP') {
           console.log("\nRequest format : [index] [action] [\"value\"]");
@@ -469,19 +475,55 @@ function BleExplorer() {
           setTimeout(function(){
             self.doExploreDevice(service.characteristics[query]);
           }, 2000);
-        else if (_.isNumber(id*1) && id >= 0 && id < self.devices.length) {
-          console.log("Selected "+ id +" ("+ service.characteristics[id].uuid +")");
-          self.doExploreDevice(service.characteristics[id]);
         }
-        else {
-          if (service.characteristics.length > 1) {
-            console.log(("You must enter a value between '0' and '"+ service.characteristics.length +"'!").red);
-            self.doSelectDevice();
+        else if (query_matches != null) {
+          // query seems correct, we can now attempt to parse it
+          var index = query_matches[0];
+          var action = query_matches[1];
+          var value = query_matches[3];
+
+          if (index >= 0 && index < service.characteristics.length) {
+            // correct characteristic index
+            if (action.toUpperCase() == 'READ') {
+
+            }
+            else if (action.toUpperCase() == 'WRITE') {
+              if (value) {
+
+              }
+              else {
+                console.log("You must provide a value when using the 'WRITE' action!".red);
+
+                setTimeout(function(){
+                  self.doSelectCharacteristic();
+                }, 2000);
+              }
+            }
           }
           else {
-            console.log("Only one characteristic found, you can only select the characteristic '0'".yellow);
-            self.doSelectDevice();
+            // incorrect characteristic index
+            if (service.characteristics.length > 1) {
+              console.log(("You must enter an index between '0' and '"+ service.characteristics.length +"'!").red);
+
+              setTimeout(function(){
+                self.doSelectCharacteristic();
+              }, 2000);
+            }
+            else {
+              console.log("Only one characteristic found, you can only use the index '0'".yellow);
+
+              setTimeout(function(){
+                self.doSelectCharacteristic();
+              }, 2000);
+            }
           }
+        }
+        else {
+          console.log("Your query is invalid, please check the allowed format by typing 'HELP' then Enter.".red);
+
+          setTimeout(function(){
+            self.doSelectCharacteristic();
+          }, 2000);
         }
       });
     }
@@ -498,7 +540,6 @@ function BleExplorer() {
         input : process.stdin,
         output : process.stdout
       });
-
 
       rl.question("\nType # of the device to explore and press Enter:", function(id) {
         rl.close();
