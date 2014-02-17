@@ -504,9 +504,9 @@ function BleExplorer() {
         }
         else if (query_matches != null) {
           // query seems correct, we can now attempt to parse it
-          var index = parseInt(query_matches[0]);
-          var action = query_matches[1];
-          var value = query_matches[3];
+          var index = parseInt(query_matches[1]);
+          var action = query_matches[2];
+          var value = query_matches[4];
 
           if (index >= 0 && index < service.characteristics.length) {
             // correct characteristic index
