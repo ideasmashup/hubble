@@ -120,7 +120,7 @@ function BleExplorer() {
     console.log("   //||\\\\".green.bold);
     console.log("  // || \\\\".green.bold);
     console.log("_//__||__\\\\__".green.bold);
-    console.log("'--------------'".green.bold + " ProTip®:".green.bold + " type EXIT or BACK to navigate between screens\n".green);
+    console.log("'--------------'".green.bold + " ProTip®:".green.bold + " type EXIT or BACK to navigate between screens and HELP for hints\n".green);
   };
 
   // methods
@@ -460,6 +460,15 @@ function BleExplorer() {
           // must wait before scanning again (BLE disconnection is SLOW!!)
           setTimeout(self.doScan, 5000);
         }
+        else if (query.toUpperCase() == 'HELP') {
+          console.log("\nRequest format : [index] [action] [\"value\"]");
+          console.log(" - index".bold + "  index of the correct characteristic row to use");
+          console.log(" - action".bold + " either 'read' or 'write'");
+          console.log(" - value".bold + "  optionnal value for 'write' requests\n");
+
+          setTimeout(function(){
+            self.doExploreDevice(service.characteristics[query]);
+          }, 2000);
         else if (_.isNumber(id*1) && id >= 0 && id < self.devices.length) {
           console.log("Selected "+ id +" ("+ service.characteristics[id].uuid +")");
           self.doExploreDevice(service.characteristics[id]);
