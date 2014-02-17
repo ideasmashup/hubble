@@ -156,7 +156,7 @@ function BleExplorer() {
         console.log("\nConnected to BLE peripheral, exploring services...\n".italic);
 
         //             2    32                                 32                                 64
-        console.log("| #  | Service Handle (UUID)            | GATT Name                        | Type  ".bold);
+        console.log("| #  | Service Handle (UUID)            | GATT Name                        | Type                                                           ".bold);
 
         async.whilst(function() {
           if (serviceIndex < services.length) {
@@ -277,8 +277,8 @@ function BleExplorer() {
       console.log("\nExploring service characteristics...\n".italic);
 
       //             2    32                                 32                                 64
-      console.log("| #  | Characteristic Handle (UUID)     | GATT Name (or found text value)  | Type                                                           ".bold.inverse);
-      console.log("     | Properties                       | Value                            | Descriptors                                                    ".bold);
+      console.log("| #  | Characteristic Handle (UUID)     | GATT Name (or found text value)  | Type                                                            ".bold);
+      console.log("     | Properties                       | Value                            | Descriptors                                                     ");
 
       async.whilst(function() {
         if (characteristicIndex < characteristics.length) {
@@ -430,7 +430,7 @@ function BleExplorer() {
     console.log("Scanning for BLE devices...\n".italic);
 
     //             2    15                18                   8          8          8
-    console.log("| #  | UUID            | Local Name         | Tx Power | RSSI     | Services".bold);
+    console.log("| #  | UUID            | Local Name         | Tx Power | RSSI     | Services                                      ".bold);
   };
 
   this.onScanStop = function() {
