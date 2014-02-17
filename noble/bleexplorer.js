@@ -287,13 +287,13 @@ function BleExplorer() {
           // must wait for disconnect to finish before exiting (BLE is SLOW)
           setTimeout(function() {
             process.exit(-1);
-          }, 5000);
+          }, 2000);
         }
         else if (id.toUpperCase() == 'BACK') {
           self.doDisconnectDevice(device);
 
           // must wait before scanning again (BLE disconnection is SLOW!!)
-          setTimeout(self.doScan, 5000);
+          setTimeout(self.doScan, 2500);
         }
         else if (_.isNumber(id*1) && id >= 0 && id < device.services.length) {
           console.log("Selected "+ id +" ("+ device.services[id].uuid +")");
@@ -332,7 +332,7 @@ function BleExplorer() {
 
       //             2    32                                 50                                                   64
       console.log("| #  | Characteristic Handle (UUID)     | GATT Name / Display Name                           | Type                                                            ".bold);
-      console.log("     | Properties                       | Value (hexadecimal)                                | User Description / Value (ascii)                                ");
+      console.log("     | Properties                       | Value (hexadecimal)                                | Value (ascii)                                ");
       console.log("     | Descriptors (if any)".grey.bold);
 
       async.whilst(function() {
@@ -481,7 +481,7 @@ function BleExplorer() {
           // must wait for disconnect to finish before exiting (BLE is SLOW)
           setTimeout(function() {
             process.exit(-1);
-          }, 5000);
+          }, 2000);
         }
         else if (query.toUpperCase() == 'BACK') {
           // go back to service selection prompt
@@ -490,10 +490,10 @@ function BleExplorer() {
           }, 1000);
         }
         else if (query.toUpperCase() == 'HELP') {
-          console.log("\nRequest format : [index] [action] [\"value\"]");
-          console.log(" - index".bold + "  index of the correct characteristic row to use");
-          console.log(" - action".bold + " either 'read' or 'write'");
-          console.log(" - value".bold + "  optionnal value for 'write' requests\n");
+          console.log("\nQuery format : [index] [action]( [\"value\"])");
+          console.log("  [index]".bold + "  # number of the characteristic to query");
+          console.log("  [action]".bold + " either 'read' or 'write'");
+          console.log("  [value]".bold + "  optionnal value for 'write' requests\n");
 
           setTimeout(function(){
             self.doSelectCharacteristic(device, service);
