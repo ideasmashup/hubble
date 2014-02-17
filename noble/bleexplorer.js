@@ -330,7 +330,7 @@ function BleExplorer() {
             }, function(userDescriptionDescriptor) {
               if (userDescriptionDescriptor) {
                 userDescriptionDescriptor.readValue(function(error, data) {
-                  characteristicInfo += ' (' + data.toString() + ')';
+                  //characteristicInfo += ' (' + data.toString() + ')';
                   callback();
                 });
               }
@@ -340,6 +340,8 @@ function BleExplorer() {
             });
           });
         }, function(callback) {
+          properties = characteristic.properties.join(', ');
+
           characteristicInfo += '\n    properties  ' + characteristic.properties.join(', ');
           if (characteristic.properties.indexOf('read') !== -1) {
             characteristic.read(function(error, data) {
@@ -355,8 +357,24 @@ function BleExplorer() {
             callback();
           }
         }, function() {
-          console.log(characteristicInfo);
-          characteristicIndex++;
+          //console.log(characteristicInfo);
+          //characteristicIndex++;
+          if (characteristic.name) {
+            // Approved characteristic
+            console.log((
+                "     | " + l(properties, 32)
+                + " | " + l(value, 32, '---')
+                + " | " + l(descriptors, 64, '---')
+                ).green);
+          }
+          else {
+            // unofficial characteristic
+            console.log((
+                "     | " + l(properties, 32)
+                + " | " + l(value, 32, '---')
+                + " | " + l(descriptors, 64, '---')
+                ).yellow);
+          }
           callback();
         } ]);
       }, function(error) {
