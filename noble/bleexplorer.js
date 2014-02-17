@@ -276,8 +276,9 @@ function BleExplorer() {
 
       console.log("\nExploring service characteristics...\n".italic);
 
-      //             2    32                                 32                                 18
-      console.log("| #  | Characteristic Handle (UUID)     | Value                            | Properties  ".bold);
+      //             2    32                                 32                                 64
+      console.log("| #  | Characteristic Handle (UUID)     | GATT Name (or found text value)  | Type                                                           ".bold.inverse);
+      console.log("     | Properties                       | Value                            | Descriptors                                                    ".bold);
 
       async.whilst(function() {
         if (characteristicIndex < characteristics.length) {
@@ -301,6 +302,25 @@ function BleExplorer() {
 
         if (characteristic.name) {
           characteristicInfo += ' (' + characteristic.name + ')';
+        }
+
+        if (characteristic.name) {
+          // standard Bluetooth 4.0 Approved service UUID
+          console.log((
+              "| " + l(service.characteristics.length - 1, 2)
+              + " | " + l(characteristic.uuid, 32)
+              + " | " + l(characteristic.name, 32, '---')
+              + " | " + l(characteristic.type, 64, '---')
+              ).green.inverse);
+        }
+        else {
+          // non-standard service UUID
+          console.log((
+              "| " + l(service.characteristics.length - 1, 2)
+              + " | " + l(service.uuid, 32)
+              + " | " + l('Unknown Service', 32)
+              + " | " + l(service.type, 64, '---')
+              ).yellow.inverse);
         }
 
         async.series([ function(callback) {
