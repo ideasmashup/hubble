@@ -284,9 +284,9 @@ function BleExplorer() {
 
       console.log("\nExploring service characteristics...\n".italic);
 
-      //             2    32                                 32                                 64
-      console.log("| #  | Characteristic Handle (UUID)     | GATT Name (or found text value)  | Type                                                            ".bold);
-      console.log("     | Properties                       | Value                            | Descriptors                                                     ");
+      //             2    32                                 50                                                   64
+      console.log("| #  | Characteristic Handle (UUID)     | GATT Name                                          | Type                                                            ".bold);
+      console.log("     | Properties                       | Value (hexadecimal)                                | Value (ascii)                                                   ");
 
       async.whilst(function() {
         if (characteristicIndex < characteristics.length) {
@@ -301,7 +301,6 @@ function BleExplorer() {
         }
       }, function(callback) {
         var characteristic = characteristics[characteristicIndex];
-        var characteristicInfo = '  ' + characteristic.uuid;
         var properties = "", descriptors = "", value = "", name = "";
 
         // append characteristic into service array
@@ -336,8 +335,8 @@ function BleExplorer() {
             characteristic.read(function(error, data) {
               if (data) {
                 var string = data.toString('ascii');
-
-                characteristicInfo += '\n    value       ' + data.toString('hex') + ' | \'' + string + '\'';
+                value = data.toString('hex');
+                descriptors = string;
               }
               callback();
             });
