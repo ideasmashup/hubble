@@ -63,7 +63,7 @@ function l(value, length, blank_value) {
       return str + whitespace_padding.substr(0, length - str.length);
     }
     else {
-      return str.substr(0, length - 4) + "...";
+      return str.substr(0, length - 3) + "...";
     }
   }
 }
