@@ -70,7 +70,7 @@ function l(value, length, blank_value) {
 
 /**
  * Force value to be numeric or zero.
- * 
+ *
  * @param {Any}
  *          value
  * @returns {Number} an integer or float (or 0 if not a number)
@@ -192,16 +192,16 @@ function BleExplorer() {
                 + " | " + l(service.uuid, 32)
                 + " | " + l(service.name, 32, '---')
                 + " | " + l(service.type, 64, '---')
-                ).green);
+                ).green.bold);
           }
           else {
             // non-standard service UUID
             console.log((
                 "| " + l(device.services.length - 1, 2)
                 + " | " + l(service.uuid, 32)
-                + " | " + l('Unknown Service', 32)
+                + " | " + l('---', 32)
                 + " | " + l(service.type, 64, '---')
-                ).yellow);
+                ).cyan.bold);
           }
 
           // continue to next async item
@@ -285,7 +285,7 @@ function BleExplorer() {
       console.log("\nExploring service characteristics...\n".italic);
 
       //             2    32                                 50                                                   64
-      console.log("| #  | Characteristic Handle (UUID)     | GATT Name                                          | Type                                                            ".bold);
+      console.log("| #  | Characteristic Handle (UUID)     | GATT Name / Display Name                           | Type                                                            ".bold);
       console.log("     | Properties                       | Value (hexadecimal)                                | Value (ascii)                                                   ");
 
       async.whilst(function() {
@@ -373,21 +373,21 @@ function BleExplorer() {
                 + " | " + l(characteristic.uuid, 32)
                 + " | " + l(clean(name), 50)
                 + " | " + l(characteristic.type, 64, '---')
-                ).yellow.bold);
+                ).cyan.bold);
 
             // details
             console.log((
                 "     | " + l(properties, 32)
                 + " | " + l(clean(value), 50, '---')
                 + " | " + l(clean(descriptors), 64, '---')
-                ).yellow);
+                ).cyan);
           }
           callback();
         } ]);
       }, function(error) {
         if (error) {
           // error happened... ignore it?
-          // console.warn(error);
+          console.warn(error);
         }
         else {
           setTimeout(function() {
@@ -433,7 +433,6 @@ function BleExplorer() {
       console.log("Couln't find any BLE device!".red);
       process.exit(-1);
     }
-
   };
 
 
@@ -474,7 +473,7 @@ function BleExplorer() {
           + " | " + l(adv.TxPowerLevel, 8, '---')
           + " | " + l(peripheral.rssi, 8, '---')
           + " | " + l(adv.serviceUuids.length, 8)
-          ).green);
+          ).green.bold);
     }
     else {
       console.log((
@@ -484,7 +483,7 @@ function BleExplorer() {
           + " | " + l("---", 8)
           + " | " + l("---", 8)
           + " | " + l("---", 8)
-          ).yellow);
+          ).green);
     }
 
     // add device to list of found devices
