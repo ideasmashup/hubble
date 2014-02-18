@@ -511,9 +511,10 @@ function BleExplorer() {
           if (index >= 0 && index < service.characteristics.length) {
             // correct characteristic index
             if (action.toUpperCase() == 'READ') {
-              console.log("\nReading characteristic " + service.characteristics[index].uuid + "...");
+              console.log("\nReading characteristic ".magenta + service.characteristics[index].uuid.magenta);
               service.characteristics[index].read(function(error, data){
                 if (error) {
+                  // error while reading
                   console.log("Couldn't read value! Error: ".red + error);
 
                   setTimeout(function(){
@@ -521,8 +522,8 @@ function BleExplorer() {
                   }, 2000);
                 }
                 else {
-                  // read value from buffer
-                  console.log("Read value : "+ data.toString('hex'));
+                  // read value from buffer successful
+                  console.log("Read value : ".magenta.bold + data.toString('hex'));
 
                   setTimeout(function(){
                     self.doSelectCharacteristic(device, service);
