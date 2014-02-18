@@ -40,6 +40,7 @@ var _ = require('underscore');
 // Helpers and utilities for BLE
 
 // FIXME move to an external module (to be published on GitHub)
+// FIXME we need JUnit automatic testing for this conversion stuff!
 
 var TYPES = {
   // Reserved for future use
@@ -129,7 +130,7 @@ var TYPES = {
       return data.readUInt8();
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseInt(value, 10)]);
     }
   },
   // unsigned 12-bit integer
@@ -148,7 +149,7 @@ var TYPES = {
       return data.readUInt16LE();
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseInt(value, 10)]);
     }
   },
   // unsigned 24-bit integer
@@ -158,7 +159,7 @@ var TYPES = {
       return parseInt(data.toString('hex'), 16);
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseInt(value, 10)]);
     }
   },
   // unsigned 32-bit integer
@@ -167,7 +168,7 @@ var TYPES = {
       return data.readUInt32LE();
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseInt(value, 10)]);
     }
   },
   // unsigned 40-bit integer
@@ -177,7 +178,7 @@ var TYPES = {
       return parseInt(data.toString('hex'), 16);
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseInt(value, 10)]);
     }
   },
   // unsigned 48-bit integer
@@ -187,7 +188,7 @@ var TYPES = {
       return parseInt(data.toString('hex'), 16);
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseInt(value, 10)]);
     }
   },
   // unsigned 64-bit integer
@@ -197,7 +198,7 @@ var TYPES = {
       return parseInt(data.toString('hex'), 16);
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseInt(value, 10)]);
     }
   },
   // unsigned 128-bit integer
@@ -207,7 +208,7 @@ var TYPES = {
       return parseInt(data.toString('hex'), 16);
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseInt(value, 10)]);
     }
   },
   // signed 8-bit integer
@@ -216,7 +217,7 @@ var TYPES = {
       return data.readInt8();
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseInt(value, 10)]);
     }
   },
   // signed 12-bit integer
@@ -225,7 +226,7 @@ var TYPES = {
       return parseInt(data.toString('hex'), 16);
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseInt(value, 10)]);
     }
   },
   // signed 16-bit integer
@@ -234,7 +235,7 @@ var TYPES = {
       return data.readInt16LE();
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseInt(value, 10)]);
     }
   },
   // signed 24-bit integer
@@ -243,7 +244,7 @@ var TYPES = {
       return parseInt(data.toString('hex'), 16);
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseInt(value, 10)]);
     }
   },
   // signed 32-bit integer
@@ -252,7 +253,7 @@ var TYPES = {
       return data.readInt32LE();
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseInt(value, 10)]);
     }
   },
   // signed 48-bit integer
@@ -261,7 +262,7 @@ var TYPES = {
       return parseInt(data.toString('hex'), 16);
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseInt(value, 10)]);
     }
   },
   // signed 64-bit integer
@@ -270,7 +271,7 @@ var TYPES = {
       return parseInt(data.toString('hex'), 16);
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseInt(value, 10)]);
     }
   },
   // signed 128-bit integer
@@ -279,7 +280,7 @@ var TYPES = {
       return pasreInt(data.toString('hex'), 16);
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseInt(value, 10)]);
     }
   },
   // IEEE-754 32-bit floating point
@@ -288,7 +289,7 @@ var TYPES = {
       return data.readFloatLE();
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseFloat(value, 10)]);
     }
   },
   // IEEE-754 64-bit floating point
@@ -297,7 +298,7 @@ var TYPES = {
       return data.readFloatLE();
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseFloat(value, 10)]);
     }
   },
   // IEEE-11073 16-bit SFLOAT
@@ -306,7 +307,7 @@ var TYPES = {
       return data.readFloatLE();
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseFloat(value, 10)]);
     }
   },
   // IEEE-11073 32-bit FLOAT
@@ -315,7 +316,7 @@ var TYPES = {
       return data.readFloatLE();
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseFloat(value, 10)]);
     }
   },
   // double unsigned 16-bit integer
@@ -324,7 +325,7 @@ var TYPES = {
       return data.readDoubleLE();
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer([parseDouble(value, 10)]);
     }
   },
   // UTF-8 string
@@ -333,7 +334,7 @@ var TYPES = {
       return data.toString('utf8');
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      return new Buffer(value, 0, value.length, 'utf8');
     }
   },
   // UTF-16 string
@@ -342,7 +343,8 @@ var TYPES = {
       return data.toString('utf16le');
     },
     'buffer' : function(value) {
-      return new Buffer([parseInt(value, 16)]);
+      // FIXME not sure if this works like this...
+      return new Buffer(value, 0, value.length*2, 'utf16le');
     }
   },
   // Regulatory Certification Data List - Refer to IEEE 11073-20601 Regulatory Certification Data List characteristic
