@@ -41,7 +41,7 @@ var _ = require('underscore');
 
 // FIXME move to an external module (to be published on GitHub)
 
-var types = {
+var TYPES = {
   // Reserved for future use
   'rfu' : {
     'read' : function(data) {
@@ -371,15 +371,6 @@ var types = {
     'buffer' : function(value) {
       return new Buffer([parseInt(value, 16)]);
     }
-  },
-  // Default parser (non-standard)
-  'hex': {
-    'read' : function(data) {
-      return data.toString('hex');
-    },
-    'buffer' : function() {
-      return new Buffer([parseInt(value, 16)]);
-    }
   }
 };
 
@@ -388,27 +379,26 @@ var types = {
  * @param type
  * @param data
  */
-function read(type, data, callback) {
-  try {
-    callback(null, types[type].read(data));
+function readValue(type, data) {
+  if (_.has(type, TYPES)) {
+    return TYPES[type].read(data);
   }
-  catch(err) {
-    callback(err);
+  else {
+    return data.toString('hex');
   }
 }
 
 /**
- * Write value into Buffer.
+ * Make new Buffer with provided type and value data.
  * @param type
- * @param data
  * @param value
  */
-function write(type, data, value, callback) {
-  try {
-    callback(null, types[type].write(data, value));
+function bufferValue(type, value) {
+  if (_.has(type, TYPES)) {
+    return TYPES[type].buffer(value);
   }
-  catch(err) {
-    callabck(err);
+  else {
+    return new Buffer([parseInt(value, 16)]);
   }
 }
 
@@ -905,7 +895,7 @@ function BleExplorer() {
                 }
                 else {
                   // read value from buffer successful
-                  console.log("Read value : ".magenta.bold + read(data, type));
+                  console.log("Read value : ".magenta.bold + readValue(type, data));
 
                   setTimeout(function(){
                     self.doSelectCharacteristic(device, service);
@@ -915,10 +905,10 @@ function BleExplorer() {
             }
             else if (action.toUpperCase() == 'WRITE') {
               if (value) {
-                var buffer = types[type].buffer(value);
+                var buffer = bufferValue(type, value);
                 var notify = true;
 
-                console.log("\nWriting ".magenta + value + " into characteristic ".magenta + service.characteristics[index].uuid.magenta);
+                console.log("\nWriting ".magenta + value.magenta + " into characteristic ".magenta + service.characteristics[index].uuid.magenta);
                 service.characteristics[index].write(buffer, notify, function(error) {
                   if (error) {
                     // error while writing
@@ -930,7 +920,7 @@ function BleExplorer() {
                   }
                   else {
                     // successful write
-                    console.log("Data successfully written !".magenta);
+                    console.log("Wrote value : ".magenta.bold + "0x" + buffer.toString('hex'));
                     setTimeout(function(){
                       self.doSelectCharacteristic(device, service);
                     }, 2000);
