@@ -836,7 +836,7 @@ function BleExplorer() {
   this.doSelectCharacteristic = function(device, service) {
     if (service.characteristics.length > 0) {
 
-      var query_pattern = /^(\d+) (READ|WRITE)( ?\"(.*)\")?$/;
+      var query_pattern = /^(\d+) (READ|WRITE) ?([A-Za-z0-9-_]+)? ?(.*)?$/;
       var query_matches;
 
       var rl = readline.createInterface({
@@ -865,13 +865,14 @@ function BleExplorer() {
           }, 1000);
         }
         else if (query.toUpperCase() == 'HELP') {
-          console.log("\nQuery format : [index] [action]( [\"value\"])\n".bold.magenta);
+          console.log("\nQuery format : [index] [action]( [format])( [\"value\"])\n".bold.magenta);
 
           console.log("  [index]".bold.magenta + "  # number of the characteristic to query".magenta);
           console.log("  [action]".bold.magenta + " either 'read' or 'write'".magenta);
+          console.log("  [format]".bold.magenta + " optionnal data type (utf8, uint8, )");
           console.log("  [value]".bold.magenta + "  optionnal value for 'write' requests\n".magenta);
 
-          console.log("Examples : ".magenta + "2 READ".magenta.bold + ", ".magenta + "42 WRITE \"is_the_answer\"".magenta.bold);
+          console.log("Examples : ".magenta + "2 READ".magenta.bold + ", ".magenta + "42 READ UInt32\"is_the_answer\"".magenta.bold + ", ".magenta + "42 WRITE \"is_the_answer\"".magenta.bold);
 
           setTimeout(function(){
             self.doSelectCharacteristic(device, service);
@@ -881,7 +882,13 @@ function BleExplorer() {
           // query seems correct, we can now attempt to parse it
           var index = parseInt(query_matches[1]);
           var action = query_matches[2];
+          var type = query_matches[3];
           var value = query_matches[4];
+
+          if (!type) {
+            // default to hexadecimal read/write
+            type = 'hex';
+          }
 
           if (index >= 0 && index < service.characteristics.length) {
             // correct characteristic index
@@ -898,7 +905,7 @@ function BleExplorer() {
                 }
                 else {
                   // read value from buffer successful
-                  console.log("Read value : ".magenta.bold + data.toString('hex'));
+                  console.log("Read value : ".magenta.bold + read(data, type));
 
                   setTimeout(function(){
                     self.doSelectCharacteristic(device, service);
@@ -908,7 +915,7 @@ function BleExplorer() {
             }
             else if (action.toUpperCase() == 'WRITE') {
               if (value) {
-                var buffer = new Buffer(64);
+                var buffer = types[type].buffer(value);
                 var notify = true;
 
                 console.log("\nWriting ".magenta + value + " into characteristic ".magenta + service.characteristics[index].uuid.magenta);
@@ -923,6 +930,7 @@ function BleExplorer() {
                   }
                   else {
                     // successful write
+                    console.log("Data successfully written !".magenta);
                     setTimeout(function(){
                       self.doSelectCharacteristic(device, service);
                     }, 2000);
