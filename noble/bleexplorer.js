@@ -37,7 +37,382 @@ var readline = require('readline');
 var colors = require('colors');
 var _ = require('underscore');
 
-// Utility functions
+// Helpers and utilities for BLE
+
+// FIXME move to an external module (to be published on GitHub)
+
+var types = {
+  // Reserved for future use
+  'rfu' : {
+    'read' : function(data) {
+      return data.toString('hex');
+    },
+    'buffer' : function(value) {
+      return new Buffer([value]);
+    }
+  },
+  // unsigned 16-bit integer or unsigned 128-bit integer
+  'gatt_uuid' : {
+    'read' : function(data) {
+      return data.toString('hex');
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // unsigned 1-bit; 0 = false, 1 = true
+  'boolean' : {
+    'read' : function(data) {
+      return (data.toString('hex') == '1');
+    },
+    'buffer' : function(value) {
+      return new Buffer([value ? 0x01 : 0x00]);
+    }
+  },
+  // 2-bit value
+  '2bit' : {
+    'read' : function(data) {
+      return data.toString('hex');
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // 4-bit value
+  'nibble' : {
+    'read' : function(data) {
+      return data.toString('hex');
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // 8-bit value
+  '8bit' : {
+    'read' : function(data) {
+      return data.toString('hex');
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // 16-bit value
+  '16bit' : {
+    'read' : function(data) {
+      return data.toString('hex');
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // 24-bit value
+  '24bit' : {
+    'read' : function(data) {
+      return data.toString('hex');
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // 32-bit value
+  '32bit' : {
+    'read' : function(data) {
+      return data.toString('hex');
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // unsigned 8-bit integer
+  'uint8' : {
+    'read' : function(data) {
+      return data.readUInt8();
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // unsigned 12-bit integer
+  'uint12' : {
+    'read' : function(data) {
+      // FIXME implement bit-wise shifting to convert to unsigned value?
+      return parseInt(data.toString('hex'), 16);
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // unsigned 16-bit integer
+  'uint16' : {
+    'read' : function(data) {
+      return data.readUInt16LE();
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // unsigned 24-bit integer
+  'uint24' : {
+    'read' : function(data) {
+      // FIXME implement bit-wise shifting to convert to unsigned value?
+      return parseInt(data.toString('hex'), 16);
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // unsigned 32-bit integer
+  'uint32' : {
+    'read' : function(data) {
+      return data.readUInt32LE();
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // unsigned 40-bit integer
+  'uint40' : {
+    'read' : function(data) {
+      // FIXME implement bit-wise shifting to convert to unsigned value?
+      return parseInt(data.toString('hex'), 16);
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // unsigned 48-bit integer
+  'uint48' : {
+    'read' : function(data) {
+      // FIXME implement bit-wise shifting to convert to unsigned value?
+      return parseInt(data.toString('hex'), 16);
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // unsigned 64-bit integer
+  'uint64' : {
+    'read' : function(data) {
+      // FIXME implement bit-wise shifting to convert to unsigned value?
+      return parseInt(data.toString('hex'), 16);
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // unsigned 128-bit integer
+  'uint128' : {
+    'read' : function(data) {
+      // FIXME implement bit-wise shifting to convert to unsigned value?
+      return parseInt(data.toString('hex'), 16);
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // signed 8-bit integer
+  'sint8' : {
+    'read' : function(data) {
+      return data.readInt8();
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // signed 12-bit integer
+  'sint12' : {
+    'read' : function(data) {
+      return parseInt(data.toString('hex'), 16);
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // signed 16-bit integer
+  'sint16' : {
+    'read' : function(data) {
+      return data.readInt16LE();
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // signed 24-bit integer
+  'sint24' : {
+    'read' : function(data) {
+      return parseInt(data.toString('hex'), 16);
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // signed 32-bit integer
+  'sint32' : {
+    'read' : function(data) {
+      return data.readInt32LE();
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // signed 48-bit integer
+  'sint48' : {
+    'read' : function(data) {
+      return parseInt(data.toString('hex'), 16);
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // signed 64-bit integer
+  'sint64' : {
+    'read' : function(data) {
+      return parseInt(data.toString('hex'), 16);
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // signed 128-bit integer
+  'sint128' : {
+    'read' : function(data) {
+      return pasreInt(data.toString('hex'), 16);
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // IEEE-754 32-bit floating point
+  'float32' : {
+    'read' : function(data) {
+      return data.readFloatLE();
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // IEEE-754 64-bit floating point
+  'float64' : {
+    'read' : function(data) {
+      return data.readFloatLE();
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // IEEE-11073 16-bit SFLOAT
+  'SFLOAT' : {
+    'read' : function(data) {
+      return data.readFloatLE();
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // IEEE-11073 32-bit FLOAT
+  'FLOAT' : {
+    'read' : function(data) {
+      return data.readFloatLE();
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // double unsigned 16-bit integer
+  'dunit16' : {
+    'read' : function(data) {
+      return data.readDoubleLE();
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // UTF-8 string
+  'utf8s' : {
+    'read' : function(data) {
+      return data.toString('utf8');
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // UTF-16 string
+  'utf16s' : {
+    'read' : function(data) {
+      return data.toString('utf16le');
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // Regulatory Certification Data List - Refer to IEEE 11073-20601 Regulatory Certification Data List characteristic
+  'reg-cert-data-list' : {
+    'read' : function(data) {
+      return data.toString('hex');
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // Defined by the Service Specification
+  'variable' : {
+    'read' : function(data) {
+      return data.toString('hex');
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // Example: uint8[]
+  'Array[]' : {
+    'read' : function(data) {
+      return data.toString('hex');
+    },
+    'buffer' : function(value) {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  },
+  // Default parser (non-standard)
+  'hex': {
+    'read' : function(data) {
+      return data.toString('hex');
+    },
+    'buffer' : function() {
+      return new Buffer([parseInt(value, 16)]);
+    }
+  }
+};
+
+/**
+ * Read value from Buffer.
+ * @param type
+ * @param data
+ */
+function read(type, data, callback) {
+  try {
+    callback(null, types[type].read(data));
+  }
+  catch(err) {
+    callback(err);
+  }
+}
+
+/**
+ * Write value into Buffer.
+ * @param type
+ * @param data
+ * @param value
+ */
+function write(type, data, value, callback) {
+  try {
+    callback(null, types[type].write(data, value));
+  }
+  catch(err) {
+    callabck(err);
+  }
+}
+
+// Formatting functions
 
 /**
  * Convert value to fixed-length string.
