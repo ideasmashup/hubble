@@ -408,7 +408,7 @@ function BleExplorer() {
             if (characteristic.descriptors && characteristic.descriptors.length > 0) {
               var list = [];
               _.each(characteristic.descriptors, function(element, index){
-                list.push(element);
+                list.push(element.name);
               });
               console.log(("     | " + list.join(", ")).grey.bold);
             }
