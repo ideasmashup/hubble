@@ -511,10 +511,10 @@ function BleExplorer() {
           if (index >= 0 && index < service.characteristics.length) {
             // correct characteristic index
             if (action.toUpperCase() == 'READ') {
-              console.log("Reading characteristic " + service.characteristics[index].uuid + "...");
+              console.log("\nReading characteristic " + service.characteristics[index].uuid + "...");
               service.characteristics[index].read(function(error, data){
                 if (error) {
-                  console.log("Couldn't read value! Error: ".red + error.red);
+                  console.log("Couldn't read value! Error: ".red + error);
 
                   setTimeout(function(){
                     self.doSelectCharacteristic(device, service);
@@ -532,7 +532,26 @@ function BleExplorer() {
             }
             else if (action.toUpperCase() == 'WRITE') {
               if (value) {
+                var buffer = new Buffer(64);
+                var notify = true;
 
+                console.log("\nWriting ".magenta + value + " into characteristic ".magenta + service.characteristics[index].uuid.magenta);
+                service.characteristics[index].write(buffer, notify, function(error) {
+                  if (error) {
+                    // error while writing
+                    console.log("Error while writing: ".red + error);
+
+                    setTimeout(function(){
+                      self.doSelectCharacteristic(device, service);
+                    }, 2000);
+                  }
+                  else {
+                    // successful write
+                    setTimeout(function(){
+                      self.doSelectCharacteristic(device, service);
+                    }, 2000);
+                  }
+                });
               }
               else {
                 console.log("You must provide a value when using the 'WRITE' action!".red);
